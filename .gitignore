@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# next
+.next/
+out/
+
+# production
+build/
+dist/
+
+# env
+.env
+.env*.local
+credential.md
+
+# logs
+*.log
+pnpm-debug.log*
+
+# drizzle generated metadata cache
+.drizzle/
+
+# typescript
+tsconfig.tsbuildinfo

@@ -37,6 +37,7 @@
 - 2026-05-27: Implemented UI-07 settings page baseline: added admin-only `/api/settings` and `/api/settings/smtp/test` readiness endpoints, and `/settings` now shows portal config, SMTP readiness, and secret configured/not-configured status without exposing secrets; `pnpm typecheck`, `pnpm build`, and Docker staging rebuild passed.
 - 2026-05-27: Added `SMTP_DRY_RUN` and `pnpm smoke:license-email`; dry-run license email validation exercised active customer/license lookup, generated email body path without external SMTP delivery, and confirmed `emailSentAt` update.
 - 2026-05-27: Completed LRG-03 deployment readiness: final `pnpm typecheck`, `pnpm build`, Docker image rebuild, PostgreSQL/Valkey healthy startup, Nginx staging route smoke, Phase 1 API smoke, rate-limit smoke, UI route smoke, and license-email dry-run smoke all passed. Portal app remains exposed only inside Docker on port `4000`; Nginx publishes staging on `8080`.
+- 2026-05-27: Added `pnpm deploy:check` production readiness guard. Local run passed typecheck and correctly failed readiness because current env still uses local/placeholder database, Valkey, portal URL, SMTP settings, and `COOKIE_SECURE=false`.
 
 ## Product Decisions
 - Portal stack target: Node.js 22 LTS, TypeScript strict, Next.js 15 App Router + React 19, Hono.js API, PostgreSQL 16 + Drizzle ORM, Valkey 8, BullMQ, `jose`, Argon2id, Zod, shadcn/ui, Tailwind CSS.
@@ -115,7 +116,7 @@
 - Decide whether `POST /api/licenses/validate` should require an explicit `instanceId` in the request body for audit/rate-limit tracking.
 
 ## Next Step
-- Configure production secrets and live SMTP credentials before external deployment; run one live `pnpm worker:license-email` send validation after credentials are installed.
+- Configure production secrets and live SMTP credentials before external deployment; run `pnpm deploy:check`, then run one live `pnpm worker:license-email` send validation after credentials are installed.
 - Keep deployment on a distinct internal portal port (`4000`) and route externally through Nginx/Cloudflare to avoid collision with the main platform on `103.93.160.112`.
 - Do not start Phase 2+ KB platform integration, CVE crawler, EPSS, CISA KEV, or risk score until the user explicitly approves.
 - Run `pnpm typecheck` before marking future implementation tasks done.

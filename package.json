@@ -1,0 +1,53 @@
+{
+  "name": "batarasec-portal",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "next dev --port 4000",
+    "build": "next build",
+    "start": "next start --port 4000",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "seed": "tsx scripts/seed.ts",
+    "smoke:phase1": "tsx scripts/phase1-smoke.ts",
+    "smoke:rate-limit": "tsx scripts/rate-limit-smoke.ts",
+    "smoke:ui": "tsx scripts/ui-smoke.ts",
+    "smoke:license-email": "tsx scripts/license-email-smoke.ts",
+    "worker:license-email": "tsx scripts/license-email-worker.ts"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "argon2": "^0.41.1",
+    "bullmq": "^5.34.2",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.38.4",
+    "hono": "^4.6.15",
+    "ioredis": "^5.4.2",
+    "jose": "^5.9.6",
+    "lucide-react": "^0.468.0",
+    "next": "^15.1.3",
+    "nodemailer": "^8.0.9",
+    "pg": "^8.13.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/nodemailer": "^8.0.0",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "drizzle-kit": "^0.30.2",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

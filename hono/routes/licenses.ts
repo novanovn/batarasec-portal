@@ -14,7 +14,7 @@ import { maskLicenseKey, signLicenseToken, type LicenseTier } from "@/lib/licens
 import { getClientIp, getUserAgent } from "@/lib/request";
 import { getValkeyClient } from "@/lib/valkey";
 
-const licenseTierSchema = z.enum(["community", "pro", "enterprise", "demo"]);
+const licenseTierSchema = z.enum(["pro", "pro_demo", "enterprise", "enterprise_demo"]);
 const licenseStatusSchema = z.enum(["active", "revoked", "expired"]);
 
 const listLicensesSchema = z.object({

@@ -51,17 +51,56 @@ type CreateLicenseResponse = {
   };
 };
 
-const AVAILABLE_FEATURES = [
-  { value: "kb.lookup", label: "KB Lookup", desc: "Akses GET /api/kb/lookup" },
-  { value: "kb.contribute", label: "KB Contribute", desc: "Akses POST /api/kb/contribute" },
+const LICENSE_PLANS = [
+  {
+    value: "enterprise",
+    label: "Enterprise — 1 Year",
+    tier: "enterprise",
+    durationMonths: 12,
+    maxUsers: "",
+    features: ["kb.lookup", "kb.contribute"],
+  },
+  {
+    value: "pro",
+    label: "Pro — 1 Year",
+    tier: "pro",
+    durationMonths: 12,
+    maxUsers: "50",
+    features: ["kb.lookup", "kb.contribute"],
+  },
+  {
+    value: "enterprise_demo",
+    label: "Enterprise Demo — 1 Month",
+    tier: "enterprise_demo",
+    durationMonths: 1,
+    maxUsers: "",
+    features: ["kb.lookup", "kb.contribute"],
+  },
+  {
+    value: "pro_demo",
+    label: "Pro Demo — 1 Month",
+    tier: "pro_demo",
+    durationMonths: 1,
+    maxUsers: "10",
+    features: ["kb.lookup", "kb.contribute"],
+  },
 ];
+
+const defaultPlan = LICENSE_PLANS[0];
+
+function addMonths(date: Date, months: number): string {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + months);
+  return next.toISOString().slice(0, 10);
+}
 
 const emptyForm = {
   customerId: "",
-  tier: "demo",
-  features: ["kb.lookup", "kb.contribute"] as string[],
-  maxUsers: "",
-  expiresAt: "",
+  plan: defaultPlan.value,
+  tier: defaultPlan.tier,
+  features: defaultPlan.features,
+  maxUsers: defaultPlan.maxUsers,
+  expiresAt: addMonths(new Date(), defaultPlan.durationMonths),
 };
 
 export function LicensesContent() {
@@ -122,6 +161,12 @@ export function LicensesContent() {
     setSaving(true);
     setGeneratedKey(null);
     setError(null);
+
+    if (form.features.length === 0) {
+      setSaving(false);
+      setError("Pilih minimal 1 feature untuk license.");
+      return;
+    }
 
     const response = await fetch("/api/licenses", {
       method: "POST",
@@ -213,39 +258,34 @@ export function LicensesContent() {
                 <option key={customer.id} value={customer.id}>{customer.name} — {customer.email}</option>
               ))}
             </select>
-            <select
-              value={form.tier}
-              onChange={(event) => setForm({ ...form, tier: event.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-            >
-              <option value="demo">Demo</option>
-              <option value="community">Community</option>
-              <option value="pro">Pro</option>
-              <option value="enterprise">Enterprise</option>
-            </select>
-            <div className="rounded-lg border border-border bg-background px-4 py-3 space-y-2">
+            <div>
+              <label className="block text-xs text-zinc-400 uppercase tracking-widest mb-1.5">License plan</label>
+              <select
+                value={form.plan}
+                onChange={(event) => {
+                  const plan = LICENSE_PLANS.find((item) => item.value === event.target.value) ?? defaultPlan;
+                  setForm({
+                    ...form,
+                    plan: plan.value,
+                    tier: plan.tier,
+                    features: plan.features,
+                    maxUsers: plan.maxUsers,
+                    expiresAt: addMonths(new Date(), plan.durationMonths),
+                  });
+                }}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
+              >
+                {LICENSE_PLANS.map((plan) => (
+                  <option key={plan.value} value={plan.value}>{plan.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="rounded-lg border border-border bg-background px-4 py-3 space-y-1.5 text-sm text-zinc-300">
               <p className="text-xs text-zinc-400 uppercase tracking-widest">Features</p>
-              {AVAILABLE_FEATURES.map((feat) => (
-                <label key={feat.value} className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.features.includes(feat.value)}
-                    onChange={(e) => {
-                      setForm({
-                        ...form,
-                        features: e.target.checked
-                          ? [...form.features, feat.value]
-                          : form.features.filter((f) => f !== feat.value),
-                      });
-                    }}
-                    className="h-4 w-4 rounded accent-accent"
-                  />
-                  <span className="text-sm text-zinc-200">
-                    {feat.label}
-                    <span className="ml-2 text-xs text-zinc-500">{feat.desc}</span>
-                  </span>
-                </label>
+              {form.features.map((feature) => (
+                <div key={feature} className="rounded-md border border-border px-3 py-2 font-mono text-xs text-zinc-200">{feature}</div>
               ))}
+              <p className="pt-1 text-xs text-zinc-500">Community tidak perlu license; hanya Pro dan Enterprise yang diterbitkan dari portal.</p>
             </div>
             <div>
               <label className="block text-xs text-zinc-400 uppercase tracking-widest mb-1.5">
@@ -298,10 +338,10 @@ export function LicensesContent() {
               </select>
               <select value={tier} onChange={(event) => setTier(event.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
                 <option value="">All tier</option>
-                <option value="demo">Demo</option>
-                <option value="community">Community</option>
-                <option value="pro">Pro</option>
                 <option value="enterprise">Enterprise</option>
+                <option value="pro">Pro</option>
+                <option value="enterprise_demo">Enterprise Demo</option>
+                <option value="pro_demo">Pro Demo</option>
               </select>
             </div>
           </div>

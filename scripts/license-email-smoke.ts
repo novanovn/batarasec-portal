@@ -24,7 +24,7 @@ async function main() {
   const licenseKey = await signLicenseToken({
     licenseId,
     customerId,
-    tier: "demo",
+    tier: "pro_demo",
     features: ["kb.lookup"],
     maxUsers: 3,
   });
@@ -33,7 +33,7 @@ async function main() {
     id: licenseId,
     customerId,
     licenseKey,
-    tier: "demo",
+    tier: "pro_demo",
     status: "active",
     maxUsers: 3,
     features: ["kb.lookup"],

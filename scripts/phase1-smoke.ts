@@ -89,10 +89,10 @@ async function main() {
     headers: { "content-type": "application/json", cookie },
     body: JSON.stringify({
       customerId,
-      tier: "demo",
+      tier: "pro_demo",
       features: ["kb.lookup", "kb.contribute"],
-      maxUsers: 5,
-      expiresAt: null,
+      maxUsers: 10,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     }),
   });
   assertStatus("generate license", generateLicense, 201);

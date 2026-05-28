@@ -1,6 +1,6 @@
 import { jwtVerify, SignJWT } from "jose";
 
-export type LicenseTier = "community" | "pro" | "enterprise" | "demo";
+export type LicenseTier = "pro" | "pro_demo" | "enterprise" | "enterprise_demo";
 
 export type LicenseClaims = {
   licenseId: string;

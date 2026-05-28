@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# gen-secrets.sh — Generate production secrets for BataraSec Portal
+# Run once on first deploy: bash scripts/gen-secrets.sh
+# Output is ready to paste into .env — DO NOT commit the output.
+set -euo pipefail
+
+echo "# === BataraSec Portal — Generated Production Secrets ==="
+echo "# Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+echo "# Paste these into /opt/batarasec-portal/.env"
+echo "# WARNING: Keep this file secret. Do not commit."
+echo ""
+
+echo "JWT_ACCESS_SECRET=$(openssl rand -hex 32)"
+echo "JWT_REFRESH_SECRET=$(openssl rand -hex 32)"
+echo "LICENSE_SIGNING_SECRET=$(openssl rand -hex 32)"
+echo "SETTINGS_ENCRYPTION_KEY=$(openssl rand -base64 32 | tr -d '\n')"
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 20)"
+echo "MINIO_ROOT_PASSWORD=$(openssl rand -hex 20)"
+echo ""
+echo "# --- Set these manually ---"
+echo "NODE_ENV=production"
+echo "PORT=4000"
+echo "PORTAL_URL=https://portal.batarasec.com"
+echo "POSTGRES_USER=batarasec_portal"
+echo "POSTGRES_DB=batarasec_portal"
+echo "DATABASE_URL=postgres://batarasec_portal:<POSTGRES_PASSWORD above>@postgres:5432/batarasec_portal"
+echo "VALKEY_URL=redis://valkey:6379"
+echo "ACCESS_TOKEN_TTL=15m"
+echo "REFRESH_TOKEN_TTL=7d"
+echo "COOKIE_SECURE=true"
+echo "SMTP_DRY_RUN=false"
+echo ""
+echo "# --- MinIO ---"
+echo "MINIO_ROOT_USER=minioadmin"
+echo "MINIO_BROWSER_REDIRECT_URL=https://portal.batarasec.com/storage"
+echo ""
+echo "# --- SMTP (deployment-time, fill in manually) ---"
+echo "SMTP_HOST=smtp.hostinger.com"
+echo "SMTP_PORT=587"
+echo "SMTP_USER=novan.hariman@batarasec.com"
+echo "SMTP_PASSWORD=<fill-in>"
+echo "SMTP_FROM=BataraSec <hello@batarasec.com>"

@@ -1,11 +1,11 @@
 # BataraSec Portal Worklog
 
 ## Active Work
-- Task group: Portal Phase 1 license bearer auth
+- Task group: Portal production deploy — PROD-01 s/d PROD-06 in_progress, pending approval eksekusi ke VPS
 - Branch: `feat/next-features`
-- Last worked: 2026-05-27 — completed Phase 1 local/staging validation: LIC-01 through LIC-05, KB-01 through KB-04, SEC-01, UI-01 through UI-07, LRG-01, LRG-02, and LRG-03 are done; live SMTP credential send remains deployment-time validation.
+- Last worked: 2026-05-28 — PROD-07 (docs contract) done; design.md Section 13+14 selesai; flow license + integrasi platform↔portal dianalisis dan didokumentasikan; TODO PROD-01 s/d PROD-06 diset in_progress menunggu approval deploy.
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
-- Related repos: main platform `D:\Ngoprek\ngulik\BataraSec`; VM agent `D:\Ngoprek\ngulik\batarasec-agent`
+- Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
 
 ## Current State
 - 2026-05-26: Created initial portal documentation baseline: `CLAUDE.md`, `TODO.md`, `design.md`, and `WORKLOG.md`.
@@ -37,7 +37,24 @@
 - 2026-05-27: Implemented UI-07 settings page baseline: added admin-only `/api/settings` and `/api/settings/smtp/test` readiness endpoints, and `/settings` now shows portal config, SMTP readiness, and secret configured/not-configured status without exposing secrets; `pnpm typecheck`, `pnpm build`, and Docker staging rebuild passed.
 - 2026-05-27: Added `SMTP_DRY_RUN` and `pnpm smoke:license-email`; dry-run license email validation exercised active customer/license lookup, generated email body path without external SMTP delivery, and confirmed `emailSentAt` update.
 - 2026-05-27: Completed LRG-03 deployment readiness: final `pnpm typecheck`, `pnpm build`, Docker image rebuild, PostgreSQL/Valkey healthy startup, Nginx staging route smoke, Phase 1 API smoke, rate-limit smoke, UI route smoke, and license-email dry-run smoke all passed. Portal app remains exposed only inside Docker on port `4000`; Nginx publishes staging on `8080`.
-- 2026-05-27: Added `pnpm deploy:check` production readiness guard. Local run passed typecheck and correctly failed readiness because current env still uses local/placeholder database, Valkey, portal URL, SMTP settings, and `COOKIE_SECURE=false`.
+- 2026-05-28: VPS production 43.134.173.146 tersedia. SSH passwordless dikonfigurasi dengan key `~/.ssh/batarasec_portal_prod` (ed25519). SSH alias `batarasec-portal-prod` aktif di WSL `~/.ssh/config`. Credential disimpan di `credential.md`.
+- 2026-05-28: Analisis readiness untuk realtime license validation dari platform. Endpoint contract dikonfirmasi dari source code. TODO PROD-01 s/d PROD-07 ditambahkan untuk production deploy + platform integration smoke test.
+- 2026-05-28: Dikonfirmasi platform (branch `feat/next-features-p2-portal`) sudah mengimplementasikan `portalKbClient.ts` dan `portalConfig.ts` sebagai disabled-by-default optional integration. Platform siap menerima `PORTAL_KB_URL` + `PORTAL_LICENSE_KEY` begitu portal production live.
+- 2026-05-28: Istilah `batarasec-hub` di platform `docs/design.md` dan `TODO.md` adalah nama konsep lama. Implementasi nyatanya adalah `batarasec-portal` (repo ini). Diklarifikasi di `design.md` Section 13.1.
+- 2026-05-28: PROD-07 selesai — `design.md` ditambahkan Section 13 (Platform Integration Contract lengkap: license validate, KB lookup/contribute/stats, error envelope, cache behavior, platform env vars, caveats) dan Section 14 (VPS deployment checklist: env table wajib vs opsional, staging vs prod diff, urutan deploy PROD-01 s/d PROD-06, smoke test commands).
+- 2026-05-28: Flow license pemasangan di platform dianalisis — platform saat ini menggunakan local HMAC verify via `branding.ts` (`LICENSE_SECRET`), bukan portal JWT. Integrasi portal adalah layer tambahan untuk realtime validation dan KB enrichment, bukan pengganti flow license lokal.
+- 2026-05-28: PROD-01 s/d PROD-06 diset in_progress — menunggu approval eksekusi ke VPS 43.134.173.146.
+- 2026-05-28: Dibuat artefak deployment yang siap pakai saat approval datang:
+  - `nginx/production.conf` — Nginx reverse proxy production dengan TLS (Cloudflare origin cert atau certbot), security headers HSTS, rate limit zones.
+  - `scripts/gen-secrets.sh` — Generate JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, LICENSE_SIGNING_SECRET, SETTINGS_ENCRYPTION_KEY, POSTGRES_PASSWORD secara random via `openssl rand`. Output siap di-paste ke `.env`.
+  - `scripts/deploy-vps.sh` — Full deploy script: git clone/pull, docker compose up -d --build, db:migrate, seed (--first-run flag), health check, deploy:check. Idempoten dan aman untuk rerun.
+  - `scripts/setup-nginx-vps.sh` — Install Nginx di host VPS, copy production.conf, support dua mode TLS: `--cloudflare` (origin cert manual) atau `--certbot` (Let's Encrypt auto).
+  - `pnpm deploy:gen-secrets` script alias ditambahkan ke `package.json`.
+- 2026-05-28: Opsi A (portal + MinIO, tanpa Harbour) disetujui. MinIO ditambahkan ke `docker-compose.yml` sebagai single-node object storage untuk release binaries dan backup artifacts.
+- 2026-05-28: Dockerfile difix — runner stage sekarang juga copy `db/`, `scripts/`, `lib/`, `hono/`, `drizzle.config.ts`, `tsconfig.json` sehingga `pnpm db:migrate` dan `pnpm seed` bisa dijalankan di dalam container.
+- 2026-05-28: `nginx/production.conf` diupdate dengan path routing: `/storage/` → MinIO console (port 9001), `/s3/` → MinIO S3 API (port 9000), `client_max_body_size` dinaikkan ke 512m untuk upload file. MinIO port tidak di-expose ke host.
+- 2026-05-28: `.env.example` dan `gen-secrets.sh` diupdate dengan `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`, `MINIO_BROWSER_REDIRECT_URL`. `deploy-vps.sh` diupdate dengan MinIO health check.
+
 
 ## Product Decisions
 - Portal stack target: Node.js 22 LTS, TypeScript strict, Next.js 15 App Router + React 19, Hono.js API, PostgreSQL 16 + Drizzle ORM, Valkey 8, BullMQ, `jose`, Argon2id, Zod, shadcn/ui, Tailwind CSS.
@@ -116,10 +133,11 @@
 - Decide whether `POST /api/licenses/validate` should require an explicit `instanceId` in the request body for audit/rate-limit tracking.
 
 ## Next Step
-- Configure production secrets and live SMTP credentials before external deployment; run `pnpm deploy:check`, then run one live `pnpm worker:license-email` send validation after credentials are installed.
-- Keep deployment on a distinct internal portal port (`4000`) and route externally through Nginx/Cloudflare to avoid collision with the main platform on `103.93.160.112`.
-- Do not start Phase 2+ KB platform integration, CVE crawler, EPSS, CISA KEV, or risk score until the user explicitly approves.
-- Run `pnpm typecheck` before marking future implementation tasks done.
+- Tunggu approval untuk mulai PROD-01 (generate production secrets + .env VPS) sebelum deploy apapun ke production.
+- Setelah PROD-01 s/d PROD-03 selesai: jalankan PROD-05 untuk generate license key yang akan dikonfigurasi di platform.
+- Platform perlu `PORTAL_KB_URL=https://portal.batarasec.com` dan `PORTAL_LICENSE_KEY=<key dari portal>` untuk mengaktifkan KB lookup.
+- Jangan mulai Phase 2+ KB platform integration, CVE crawler, EPSS, CISA KEV, atau risk score sampai user approve.
+- Jalankan `pnpm typecheck` sebelum mark future implementation task done.
 
 ## Validation Checklist Template
 

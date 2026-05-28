@@ -489,3 +489,295 @@ Not in Phase 1 unless explicitly requested:
 - Should portal settings be env-only initially, or editable from UI with encrypted DB storage?
 - Should KB contribution scrubbing be strict reject-first, or allow best-effort redaction?
 - Should customer instances identify themselves with a required `instanceId` during license validation?
+
+---
+
+## 13. Platform Integration Contract
+
+> This section documents the exact API contract that the BataraSec platform must use to call this portal. Updated: 2026-05-28.
+
+### 13.1 Terminology note
+
+The BataraSec platform `docs/design.md` and older `TODO.md` entries reference `batarasec-hub` as the concept of a central partner/license portal. **`batarasec-portal` (this repo) is the concrete implementation of that concept.** No renaming is required; platform docs can refer to either name interchangeably, but the active implementation repo is `batarasec-portal`.
+
+### 13.2 Base URL
+
+```
+https://portal.batarasec.com
+```
+
+All endpoints are under `/api`.
+
+### 13.3 Auth header for platform calls
+
+All platform-facing endpoints use license bearer auth:
+
+```
+Authorization: Bearer <licenseKey>
+```
+
+`<licenseKey>` is the signed JWT issued by the portal during license generation. It must be stored in the platform's env as `PORTAL_LICENSE_KEY`. The full key is only shown once at generation time (and delivered via email). The portal validates both the JWT signature and the database-backed license/customer status on every call.
+
+### 13.4 License Validation
+
+**Endpoint**: `POST /api/licenses/validate`
+
+**Auth**: License bearer
+
+**Request body** (optional, JSON):
+```json
+{ "instanceId": "optional-string-max-160-chars" }
+```
+
+`instanceId` is optional but recommended for audit tracing (use a stable identifier for the deployed platform instance, e.g. hostname or deployment ID).
+
+**Success response** `200`:
+```json
+{
+  "success": true,
+  "data": {
+    "valid": true,
+    "tier": "community" | "pro" | "enterprise" | "demo",
+    "features": ["string"],
+    "expiresAt": "2027-01-01T00:00:00.000Z" | null,
+    "maxUsers": 100 | null
+  }
+}
+```
+
+**Error responses**:
+
+| HTTP | `error.code` | Cause |
+|---|---|---|
+| 401 | `UNAUTHORIZED` | Missing or invalid bearer token |
+| 403 | `FORBIDDEN` | License revoked / expired / customer suspended |
+| 429 | `RATE_LIMITED` | Exceeded 100 requests/hour/license |
+| 500 | `INTERNAL_SERVER_ERROR` | Portal internal error |
+
+**Rate limit**: 100 requests / hour / license. Response is cached in Valkey for 1 hour per `licenseId + instanceId` pair, so identical calls within the window return cached data without hitting DB.
+
+> **Note untuk platform integrator**: `lastInstanceId` di portal hanya terupdate saat cache miss (pertama kali dalam window 1 jam per kombinasi licenseId+instanceId). Ini by-design — gunakan `instanceId` yang stabil dan konsisten per deployment supaya audit trail akurat.
+
+**Timeout expectation**: Platform should set timeout ≥ 3 seconds. Portal aims < 200ms for cached responses, < 500ms for DB-backed responses.
+
+**Failure behavior for platform**: If portal is unreachable or returns non-2xx, platform must fall back to existing license behavior (self-hosted license check via `LICENSE_SECRET`) and not block normal operation.
+
+### 13.5 KB Lookup
+
+**Endpoint**: `GET /api/kb/lookup?cveId=CVE-YYYY-NNNNN`
+
+**Auth**: License bearer
+
+**Query param**: `cveId` — must match `CVE-YYYY-NNNNN` format (case-insensitive, normalized to uppercase by portal).
+
+**Success response** `200`:
+```json
+{
+  "success": true,
+  "data": {
+    "found": true,
+    "entry": {
+      "id": "string",
+      "cveId": "CVE-2024-12345",
+      "severity": "critical" | "high" | "medium" | "low" | "info" | "unknown",
+      "riskSummary": "string",
+      "businessImpact": "string | null",
+      "mitigationSteps": ["string"],
+      "affectedPackages": ["string"],
+      "priority": "critical" | "high" | "medium" | "low" | null,
+      "source": "crawler" | "customer_contribution" | "manual_curation",
+      "modelUsed": "string | null",
+      "confidence": "high" | "medium" | "low",
+      "version": 1,
+      "reportCount": 5,
+      "curatedByTeam": false,
+      "contributionCount": 3,
+      "createdAt": "ISO8601",
+      "updatedAt": "ISO8601"
+    }
+  }
+}
+```
+
+**Not-found response** `200` (not 404):
+```json
+{ "success": true, "data": { "found": false, "entry": null } }
+```
+
+**Error responses**: Same as license validate (401/403/429/500).
+
+**Rate limit**: 1000 requests / day / license. Response cached in Valkey for 1 hour per `cveId`.
+
+**Timeout expectation**: Platform should set timeout ≥ 3 seconds (current platform implementation uses 3000ms). Treat non-2xx or timeout as `found: false` and proceed normally.
+
+### 13.6 KB Contribution
+
+**Endpoint**: `POST /api/kb/contribute`
+
+**Auth**: License bearer
+
+**Status**: Disabled by default in platform (`KB_CONTRIBUTE_ENABLED=false`). Do not enable without explicit approval due to data sanitization requirements.
+
+**Request body**:
+```json
+{
+  "cveId": "CVE-YYYY-NNNNN",
+  "severity": "critical" | "high" | "medium" | "low" | "info" | "unknown",
+  "riskSummary": "string (1–2000 chars)",
+  "businessImpact": "string | null (max 2000)",
+  "mitigationSteps": ["string (max 500 each, max 20 items)"],
+  "affectedPackages": ["string (max 160 each, max 100 items)"],
+  "priority": "critical" | "high" | "medium" | "low" | null,
+  "modelUsed": "string | null (max 160)",
+  "confidence": "high" | "medium" | "low"
+}
+```
+
+Portal automatically redacts emails, IPs, and URLs from text fields. Duplicate detection uses SHA-256 hash of sanitized content — identical contributions are accepted silently without double-counting.
+
+**Success response** `201` (new) or `200` (duplicate):
+```json
+{
+  "success": true,
+  "data": {
+    "accepted": true,
+    "duplicate": false,
+    "contributionId": "kbc_xxx",
+    "entry": { /* same as KB lookup entry */ }
+  }
+}
+```
+
+**Rate limit**: 100 requests / day / license.
+
+### 13.7 KB Stats
+
+**Endpoint**: `GET /api/kb/stats`
+
+**Auth**: License bearer
+
+**Response** `200`:
+```json
+{
+  "success": true,
+  "data": {
+    "totalEntries": 500,
+    "totalContributions": 1200,
+    "severityDistribution": { "critical": 45, "high": 180, "medium": 200, "low": 75 },
+    "recentEntries": [ /* array of KB entry objects, max 10 */ ]
+  }
+}
+```
+
+Cached for 15 minutes per call.
+
+### 13.8 Platform env vars required
+
+```bash
+# Enable Portal KB lookup (set both or neither)
+PORTAL_KB_URL=https://portal.batarasec.com
+PORTAL_LICENSE_KEY=<signed-jwt-from-portal>
+
+# Optional: enable contribution (requires explicit approval)
+KB_CONTRIBUTE_ENABLED=false
+
+# Optional: enable license sync
+PORTAL_LICENSE_SYNC=false
+
+# Optional: local AI cache TTL
+KB_CACHE_TTL_DAYS=30
+```
+
+### 13.9 Error response envelope
+
+All error responses follow:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED | FORBIDDEN | BAD_REQUEST | RATE_LIMITED | NOT_FOUND | INTERNAL_SERVER_ERROR",
+    "message": "human-readable string"
+  }
+}
+```
+
+---
+
+## 14. Portal Production Deployment Checklist
+
+> Target: VPS `43.134.173.146` → `https://portal.batarasec.com`. Updated: 2026-05-28.
+> **Do not execute without explicit approval.**
+
+### 14.1 Portal-side env vars (wajib di .env production)
+
+| Env var | Wajib | Catatan |
+|---|---|---|
+| `NODE_ENV` | ✅ | `production` |
+| `PORT` | ✅ | `4000` |
+| `PORTAL_URL` | ✅ | `https://portal.batarasec.com` |
+| `DATABASE_URL` | ✅ | Postgres di Docker internal network |
+| `POSTGRES_USER` | ✅ | Ganti dari default `batarasec_portal` |
+| `POSTGRES_PASSWORD` | ✅ | Generate random, min 32 chars |
+| `POSTGRES_DB` | ✅ | `batarasec_portal` |
+| `VALKEY_URL` | ✅ | `redis://valkey:6379` (internal) |
+| `JWT_ACCESS_SECRET` | ✅ | `openssl rand -hex 32` |
+| `JWT_REFRESH_SECRET` | ✅ | `openssl rand -hex 32` (beda dari access) |
+| `ACCESS_TOKEN_TTL` | ✅ | `15m` |
+| `REFRESH_TOKEN_TTL` | ✅ | `7d` |
+| `COOKIE_SECURE` | ✅ | `true` (wajib di production HTTPS) |
+| `LICENSE_SIGNING_SECRET` | ✅ | `openssl rand -hex 32` — **simpan baik-baik, license lama tidak bisa diverifikasi jika berubah** |
+| `SETTINGS_ENCRYPTION_KEY` | ✅ | 32-byte base64: `openssl rand -base64 32` |
+| `SMTP_HOST` | ⏳ | Deployment-time validation — `smtp.hostinger.com` |
+| `SMTP_PORT` | ⏳ | `587` |
+| `SMTP_USER` | ⏳ | `novan.hariman@batarasec.com` |
+| `SMTP_PASSWORD` | ⏳ | Deployment-time — jangan log |
+| `SMTP_FROM` | ⏳ | `BataraSec <hello@batarasec.com>` |
+| `SMTP_DRY_RUN` | ✅ | `false` di production |
+
+### 14.2 Security config yang berbeda dari staging
+
+| Item | Staging | Production |
+|---|---|---|
+| `COOKIE_SECURE` | `false` | **`true`** |
+| `PORTAL_URL` | `http://localhost:8080` | **`https://portal.batarasec.com`** |
+| Nginx port | `8080` | **`443` dengan TLS** |
+| Portal exposed port | `8080` (host) | **tidak ada** (hanya internal Docker) |
+| TLS | tidak ada | **wajib** (Cloudflare / certbot) |
+
+### 14.3 Urutan deployment (PROD-01 s/d PROD-06)
+
+```
+PROD-01  Generate semua secrets → buat .env di VPS
+PROD-02  docker compose up -d → db:migrate → seed → health check
+PROD-03  Nginx + TLS → https://portal.batarasec.com/api/health
+PROD-04  Worker SMTP → kirim 1 license email live
+PROD-05  Generate 1 customer + 1 license → simpan key untuk platform
+PROD-06  Platform set PORTAL_KB_URL + PORTAL_LICENSE_KEY → smoke test KB lookup
+```
+
+### 14.4 Smoke test production (setelah PROD-03)
+
+```bash
+# Health
+curl https://portal.batarasec.com/api/health
+
+# License validate — harus 401 tanpa token
+curl -X POST https://portal.batarasec.com/api/licenses/validate
+
+# License validate — harus 200 dengan token valid
+curl -X POST https://portal.batarasec.com/api/licenses/validate \
+  -H "Authorization: Bearer <PORTAL_LICENSE_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{"instanceId":"smoke-test"}'
+
+# KB lookup — harus found: false (KB masih kosong)
+curl "https://portal.batarasec.com/api/kb/lookup?cveId=CVE-2024-1234" \
+  -H "Authorization: Bearer <PORTAL_LICENSE_KEY>"
+```
+
+Expected results:
+- Health: `{ success: true, data: { status: "ok" } }`
+- Validate tanpa token: HTTP 401
+- Validate dengan token: HTTP 200, `data.valid = true`
+- KB lookup: HTTP 200, `data.found = false` (KB belum diisi)
+

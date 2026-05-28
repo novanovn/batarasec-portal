@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "seed": "tsx scripts/seed.ts",
     "deploy:check": "tsx scripts/deploy-check.ts",
+    "deploy:gen-secrets": "bash scripts/gen-secrets.sh",
     "smoke:phase1": "tsx scripts/phase1-smoke.ts",
     "smoke:rate-limit": "tsx scripts/rate-limit-smoke.ts",
     "smoke:ui": "tsx scripts/ui-smoke.ts",

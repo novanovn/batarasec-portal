@@ -1,6 +1,6 @@
 # BataraSec Portal — Project TODO
 > Managed by: **Bisma** (PM Agent)
-> Last updated: 2026-05-27 (Phase 1 implementation and final local/staging validation complete; live SMTP credential send remains deployment-time validation)
+> Last updated: 2026-05-28 (MinIO ditambahkan ke stack; Dockerfile fix untuk migrations; Nginx path routing /storage/+/s3/ ready; semua deploy artefak siap — PROD-01 s/d PROD-06 in_progress pending approval eksekusi)
 > Sorted by: estimated time (shortest first)
 
 ---
@@ -297,6 +297,86 @@
 - **Worked**: 2026-05-27 — final readiness validation passed: `pnpm typecheck`, `pnpm build`, Docker image rebuild, PostgreSQL/Valkey healthy startup, Nginx staging route smoke, Phase 1 API smoke, rate-limit smoke, UI route smoke, and license-email dry-run smoke. Docker compose keeps portal app exposed only inside the Docker network on port `4000`; Nginx publishes staging on `8080`. Live SMTP credential send remains deployment-time validation.
 - **Scope**: Validate `docker compose up`, PostgreSQL health, Valkey health, migrations, seed, `pnpm typecheck`, and production env sanity.
 - **Done when**: Portal is ready to deploy behind Nginx at `portal.batarasec.com` on port `4000`.
+
+---
+
+## Production Readiness & Platform Integration
+
+### [PROD] Generate production secrets dan configure .env di VPS
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-01
+- **Owner**: Yudhistira
+- **Status**: in_progress
+- **Priority**: P1
+- **Est**: ~30 menit
+- **Scope**: Generate semua production secrets (JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, LICENSE_SIGNING_SECRET, SETTINGS_ENCRYPTION_KEY), set COOKIE_SECURE=true, PORTAL_URL=https://portal.batarasec.com, SMTP credentials, dan buat file `.env` di VPS `/opt/batarasec-portal/.env`.
+- **Done when**: `pnpm deploy:check` pass di VPS dengan env production (bukan placeholder).
+
+### [PROD] Deploy portal ke VPS production (docker compose up)
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-02
+- **Owner**: Yudhistira
+- **Status**: in_progress
+- **Priority**: P1
+- **Est**: ~1 jam
+- **Depends on**: PROD-01
+- **Scope**: Clone repo ke VPS, copy `.env`, jalankan `docker compose up -d`, run `pnpm db:migrate` dan `pnpm seed` di container, verify `GET /api/health` returns OK via Docker network.
+- **Done when**: Portal berjalan di VPS port 4000, PostgreSQL + Valkey healthy, health endpoint OK.
+
+### [PROD] Setup Nginx production di VPS untuk portal.batarasec.com
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-03
+- **Owner**: Yudhistira
+- **Status**: in_progress
+- **Priority**: P1
+- **Est**: ~1 jam
+- **Depends on**: PROD-02
+- **Scope**: Install dan configure Nginx di VPS host sebagai reverse proxy ke port 4000, setup TLS (certbot/Cloudflare origin cert), expose port 443. Portal app port 4000 tetap hanya di Docker network internal.
+- **Done when**: `https://portal.batarasec.com/api/health` returns OK dengan TLS valid.
+
+### [PROD] Live SMTP send validation di production
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-04
+- **Owner**: Yudhistira
+- **Status**: in_progress
+- **Priority**: P1
+- **Est**: ~30 menit
+- **Depends on**: PROD-02
+- **Scope**: Jalankan `pnpm worker:license-email` di VPS dengan SMTP credential production. Generate 1 test license ke email internal dan konfirmasi email diterima + `emailSentAt` terupdate di DB.
+- **Done when**: License email diterima di inbox dengan license key; `emailSentAt` populated di DB.
+
+### [PROD] Generate customer + license untuk realtime validation test dari platform
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-05
+- **Owner**: Yudhistira
+- **Status**: in_progress
+- **Priority**: P1
+- **Est**: ~30 menit
+- **Depends on**: PROD-02
+- **Scope**: Buat 1 customer dan 1 license di portal production. Simpan license key untuk dikonfigurasi di platform BataraSec sebagai `PORTAL_LICENSE_KEY`.
+- **Done when**: License key tersedia, bisa langsung dipakai platform untuk `POST /api/licenses/validate` ke `https://portal.batarasec.com`.
+
+### [PROD] Realtime license validation smoke test dari platform ke portal prod
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-06
+- **Owner**: Yudhistira + Karna
+- **Status**: in_progress
+- **Priority**: P1
+- **Est**: ~1 jam
+- **Depends on**: PROD-03, PROD-05
+- **Scope**: Set `PORTAL_KB_URL=https://portal.batarasec.com` dan `PORTAL_LICENSE_KEY=<key>` di platform env. Trigger `GET /api/kb/lookup` dari platform ke portal production. Verify respons valid, no timeout, audit log tercatat di portal.
+- **Done when**: Platform berhasil call portal KB lookup via HTTPS dengan license bearer auth; response `{ found, entry }` diterima dalam < 3 detik; audit log ada di portal.
+
+### [DOCS] Endpoint contract license validation + KB untuk platform integrators
+- **Main task**: Production Readiness & Platform Integration
+- **Subtask**: PROD-07
+- **Owner**: Widura
+- **Status**: done
+- **Worked**: 2026-05-28 — design.md Section 13 (Platform Integration Contract: license validate, KB lookup/contribute/stats, error envelope, platform env vars) dan Section 14 (VPS deployment checklist, env table, staging vs prod diff, smoke test commands) selesai ditambahkan. Istilah batarasec-hub vs batarasec-portal diklarifikasi di Section 13.1.
+- **Priority**: P2
+- **Est**: ~1 jam
+- **Scope**: Tambahkan section `## Platform Integration Contract` di `design.md` yang mendokumentasikan endpoint contract lengkap: license validate, KB lookup, KB contribute, KB stats — request/response shape, auth header, error codes, rate limits, timeout expectation, dan istilah `batarasec-hub` sebagai nama konsep lama yang kini diimplementasikan sebagai `batarasec-portal`.
+- **Done when**: Platform developer bisa configure integrasi tanpa perlu membaca source code portal.
 
 ---
 

@@ -39,8 +39,8 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-change-me}
       SMTP_FROM: ${SMTP_FROM:-BataraSec <license@example.com>}
       SMTP_DRY_RUN: ${SMTP_DRY_RUN:-false}
-    expose:
-      - "4000"
+    ports:
+      - "127.0.0.1:4000:4000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -89,9 +89,9 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-minio-password}
       MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL:-https://portal.batarasec.com/storage}
-    expose:
-      - "9000"
-      - "9001"
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - minio_data:/data
     healthcheck:

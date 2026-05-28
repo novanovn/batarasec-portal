@@ -51,11 +51,16 @@ type CreateLicenseResponse = {
   };
 };
 
+const AVAILABLE_FEATURES = [
+  { value: "kb.lookup", label: "KB Lookup", desc: "Akses GET /api/kb/lookup" },
+  { value: "kb.contribute", label: "KB Contribute", desc: "Akses POST /api/kb/contribute" },
+];
+
 const emptyForm = {
   customerId: "",
   tier: "demo",
-  features: "kb.lookup,kb.contribute",
-  maxUsers: "5",
+  features: ["kb.lookup", "kb.contribute"] as string[],
+  maxUsers: "",
   expiresAt: "",
 };
 
@@ -125,7 +130,7 @@ export function LicensesContent() {
       body: JSON.stringify({
         customerId: form.customerId,
         tier: form.tier,
-        features: form.features.split(",").map((feature) => feature.trim()).filter(Boolean),
+        features: form.features,
         maxUsers: form.maxUsers ? Number(form.maxUsers) : null,
         expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
       }),
@@ -218,26 +223,54 @@ export function LicensesContent() {
               <option value="pro">Pro</option>
               <option value="enterprise">Enterprise</option>
             </select>
-            <input
-              value={form.features}
-              onChange={(event) => setForm({ ...form, features: event.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="features comma-separated"
-            />
-            <input
-              type="number"
-              min="1"
-              value={form.maxUsers}
-              onChange={(event) => setForm({ ...form, maxUsers: event.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Max users"
-            />
-            <input
-              type="date"
-              value={form.expiresAt}
-              onChange={(event) => setForm({ ...form, expiresAt: event.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-            />
+            <div className="rounded-lg border border-border bg-background px-4 py-3 space-y-2">
+              <p className="text-xs text-zinc-400 uppercase tracking-widest">Features</p>
+              {AVAILABLE_FEATURES.map((feat) => (
+                <label key={feat.value} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.features.includes(feat.value)}
+                    onChange={(e) => {
+                      setForm({
+                        ...form,
+                        features: e.target.checked
+                          ? [...form.features, feat.value]
+                          : form.features.filter((f) => f !== feat.value),
+                      });
+                    }}
+                    className="h-4 w-4 rounded accent-accent"
+                  />
+                  <span className="text-sm text-zinc-200">
+                    {feat.label}
+                    <span className="ml-2 text-xs text-zinc-500">{feat.desc}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400 uppercase tracking-widest mb-1.5">
+                Max users <span className="normal-case text-zinc-500">(opsional — kosongkan = unlimited)</span>
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={form.maxUsers}
+                onChange={(event) => setForm({ ...form, maxUsers: event.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
+                placeholder="Contoh: 10 (kosong = unlimited)"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400 uppercase tracking-widest mb-1.5">
+                Expires at <span className="normal-case text-zinc-500">(opsional — kosongkan = tidak ada expiry)</span>
+              </label>
+              <input
+                type="date"
+                value={form.expiresAt}
+                onChange={(event) => setForm({ ...form, expiresAt: event.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
+              />
+            </div>
             <button
               disabled={saving}
               className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"

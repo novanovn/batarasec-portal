@@ -53,7 +53,7 @@ export const portalLicenses = pgTable(
       .references(() => portalCustomers.id, { onDelete: "restrict" }),
     licenseKey: text("license_key").notNull(),
     tier: text("tier").notNull(),
-    status: text("status").notNull().default("active"),
+    status: text("status").notNull().default("issued"),
     maxUsers: integer("max_users"),
     features: jsonb("features").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
     issuedAt: timestamp("issued_at", { withTimezone: true }).notNull().defaultNow(),

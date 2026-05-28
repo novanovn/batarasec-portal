@@ -337,6 +337,7 @@ export function LicensesContent() {
             <div className="flex gap-2">
               <select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
                 <option value="">All status</option>
+                <option value="issued">Issued</option>
                 <option value="active">Active</option>
                 <option value="revoked">Revoked</option>
                 <option value="expired">Expired</option>
@@ -395,7 +396,15 @@ export function LicensesContent() {
                     </td>
                     <td className="px-4 py-4 text-zinc-300 capitalize">{license.tier}</td>
                     <td className="px-4 py-4">
-                      <span className="rounded-full border border-border bg-background px-3 py-1 text-xs capitalize text-zinc-200">{license.status}</span>
+                      {license.status === "active" ? (
+                        <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">Active</span>
+                      ) : license.status === "issued" ? (
+                        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs text-amber-300">Issued</span>
+                      ) : license.status === "revoked" ? (
+                        <span className="rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs text-red-300">Revoked</span>
+                      ) : (
+                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs capitalize text-zinc-200">{license.status}</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 text-zinc-400">
                       {license.expiresAt ? new Date(license.expiresAt).toLocaleDateString("id-ID") : "Never"}
@@ -403,7 +412,7 @@ export function LicensesContent() {
                     <td className="px-4 py-4">
                       <div className="flex justify-end gap-2">
                         <button type="button" onClick={() => resendLicense(license)} className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-zinc-200 transition hover:border-accent hover:text-white">Resend</button>
-                        <button type="button" disabled={license.status !== "active"} onClick={() => revokeLicense(license)} className="rounded-lg border border-red-500/40 px-3 py-2 text-xs font-medium text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40">Revoke</button>
+                        <button type="button" disabled={license.status === "revoked"} onClick={() => revokeLicense(license)} className="rounded-lg border border-red-500/40 px-3 py-2 text-xs font-medium text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40">Revoke</button>
                       </div>
                     </td>
                   </tr>

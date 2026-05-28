@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, lte } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { kbContributions, kbEntries, portalAuditLog, portalCustomers, portalLicenses } from "@/db/schema";
 import { requireAdmin } from "@/lib/server-auth";
@@ -21,6 +21,7 @@ export async function DashboardContent() {
   const [
     [activeCustomers],
     [activeLicenses],
+    [issuedLicenses],
     [expiringLicenses],
     [kbEntryTotal],
     [kbContributionTotal],
@@ -28,12 +29,13 @@ export async function DashboardContent() {
   ] = await Promise.all([
     db.select({ value: count() }).from(portalCustomers).where(eq(portalCustomers.status, "active")),
     db.select({ value: count() }).from(portalLicenses).where(eq(portalLicenses.status, "active")),
+    db.select({ value: count() }).from(portalLicenses).where(eq(portalLicenses.status, "issued")),
     db
       .select({ value: count() })
       .from(portalLicenses)
       .where(
         and(
-          eq(portalLicenses.status, "active"),
+          inArray(portalLicenses.status, ["issued", "active"]),
           gt(portalLicenses.expiresAt, now),
           lte(portalLicenses.expiresAt, expiringUntil),
         ),
@@ -55,7 +57,8 @@ export async function DashboardContent() {
 
   const stats = [
     { label: "Active customers", value: activeCustomers?.value ?? 0, helper: "Customer siap menerima license" },
-    { label: "Active licenses", value: activeLicenses?.value ?? 0, helper: "License belum revoked/expired" },
+    { label: "Active licenses", value: activeLicenses?.value ?? 0, helper: "Sudah divalidasi platform" },
+    { label: "Issued licenses", value: issuedLicenses?.value ?? 0, helper: "Diterbitkan, belum diaktifkan" },
     { label: "Expiring 30 days", value: expiringLicenses?.value ?? 0, helper: "Perlu follow-up renewal" },
     { label: "KB entries", value: kbEntryTotal?.value ?? 0, helper: `${kbContributionTotal?.value ?? 0} contribution diterima` },
   ];
@@ -77,7 +80,7 @@ export async function DashboardContent() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {stats.map((stat) => (
           <div key={stat.label} className="rounded-2xl border border-border bg-card p-5 shadow-2xl">
             <p className="text-sm text-zinc-400">{stat.label}</p>

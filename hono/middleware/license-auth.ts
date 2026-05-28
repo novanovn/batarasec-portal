@@ -69,7 +69,11 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
     return c.json(errorResponse("UNAUTHORIZED", "Invalid license bearer token"), 401);
   }
 
-  if (row.licenseStatus !== "active") {
+  if (row.licenseStatus === "revoked") {
+    return c.json(errorResponse("FORBIDDEN", "License has been revoked"), 403);
+  }
+
+  if (row.licenseStatus !== "issued" && row.licenseStatus !== "active") {
     return c.json(errorResponse("FORBIDDEN", "License is not active"), 403);
   }
 

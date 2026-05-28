@@ -99,6 +99,18 @@
 - **Scope**: Implement list/filter, generate, revoke, resend email enqueue, and expiring-soon endpoints with audit logging.
 - **Done when**: Admin can generate and revoke licenses; license rows store issued/expiry/revocation/email metadata.
 
+### [LICENSE] License activation status tracking
+- **Main task**: License Management
+- **Subtask**: LIC-07
+- **Owner**: Yudhistira
+- **Status**: done
+- **Worked**: 2026-05-28 — Migration `0001_bouncy_amphibian.sql` (ALTER DEFAULT + backfill). Schema default `issued`. Middleware izinkan `issued`+`active`. Validate auto-upgrade + audit `license_activated`. Dashboard 5 cards (issued+active split). UI badge amber/hijau/merah. `pnpm typecheck` + `pnpm build` PASS.
+- **Priority**: P1
+- **Est**: ~2 jam
+- **Depends on**: LIC-03, LIC-04
+- **Scope**: Tambah status `issued` (default saat generate, belum pernah divalidasi platform) dan `active` (sudah divalidasi minimal sekali). Migration aman: license dengan `lastValidatedAt` existing di-set `active`, sisanya `issued`. Middleware izinkan `issued` + `active`, block `revoked`. Transisi `issued → active` otomatis saat `POST /api/licenses/validate` pertama berhasil + audit log `license_activated`. UI badge: kuning `Issued`, hijau `Active`, merah `Revoked`. Dashboard pisahkan count issued vs active. Response body `/api/licenses/validate` tidak berubah (platform tidak perlu tahu).
+- **Done when**: `pnpm typecheck`, `pnpm build`, Docker rebuild, smoke test PASS. License baru berstatus `issued`; setelah pertama kali validate berubah ke `active`.
+
 ### [LICENSE] Public license validation endpoint
 - **Main task**: License Management
 - **Subtask**: LIC-04

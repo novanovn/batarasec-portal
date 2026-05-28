@@ -15,7 +15,7 @@ import { getClientIp, getUserAgent } from "@/lib/request";
 import { getValkeyClient } from "@/lib/valkey";
 
 const licenseTierSchema = z.enum(["pro", "pro_demo", "enterprise", "enterprise_demo"]);
-const licenseStatusSchema = z.enum(["active", "revoked", "expired"]);
+const licenseStatusSchema = z.enum(["issued", "active", "revoked", "expired"]);
 
 const listLicensesSchema = z.object({
   customerId: z.string().min(1).max(128).optional(),
@@ -141,13 +141,36 @@ export const licensesRoute = new Hono<Env>()
 
     const response = validationResponse(license);
 
+    const existing = await db.query.portalLicenses.findFirst({
+      where: eq(portalLicenses.id, license.licenseId),
+    });
+
+    const isFirstActivation = existing?.status === "issued";
+
     await db
       .update(portalLicenses)
       .set({
+        ...(isFirstActivation ? { status: "active" } : {}),
         lastValidatedAt: new Date(),
         lastInstanceId: payload.data.instanceId ?? null,
       })
       .where(eq(portalLicenses.id, license.licenseId));
+
+    if (isFirstActivation) {
+      await writeAuditLog({
+        actor: license.customerId,
+        action: "license_activated",
+        target: license.licenseId,
+        metadata: {
+          customerId: license.customerId,
+          tier: license.tier,
+          instanceId: payload.data.instanceId ?? null,
+        },
+        ipAddress: getClientIp(c),
+        userAgent: getUserAgent(c),
+      });
+    }
+
     await valkey.set(cacheKey, JSON.stringify(response), "EX", 60 * 60);
 
     return c.json(successResponse(response));
@@ -236,7 +259,7 @@ export const licensesRoute = new Hono<Env>()
       customerId: customer.id,
       licenseKey,
       tier: payload.data.tier,
-      status: "active",
+      status: "issued",
       maxUsers: payload.data.maxUsers ?? null,
       features: payload.data.features,
       expiresAt,
@@ -334,8 +357,8 @@ export const licensesRoute = new Hono<Env>()
       return c.json(errorResponse("NOT_FOUND", "License not found"), 404);
     }
 
-    if (existing.status !== "active") {
-      return c.json(errorResponse("CONFLICT", "License is already inactive"), 409);
+    if (existing.status === "revoked") {
+      return c.json(errorResponse("CONFLICT", "License is already revoked"), 409);
     }
 
     const admin = c.get("admin");

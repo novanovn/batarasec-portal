@@ -100,6 +100,29 @@ services:
       timeout: 5s
       retries: 5
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: batarasec-portal-worker
+    restart: unless-stopped
+    command: ["pnpm", "worker:license-email"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-batarasec_portal}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-batarasec_portal}
+      VALKEY_URL: redis://valkey:6379
+      SMTP_HOST: ${SMTP_HOST:-smtp.example.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-license@example.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-change-me}
+      SMTP_FROM: ${SMTP_FROM:-BataraSec <license@example.com>}
+      SMTP_DRY_RUN: ${SMTP_DRY_RUN:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   valkey_data:

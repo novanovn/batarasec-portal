@@ -226,6 +226,11 @@ export function LicensesContent() {
     }
   }
 
+  function copyKey(key: string | undefined) {
+    if (!key) return;
+    void navigator.clipboard.writeText(key);
+  }
+
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
@@ -372,8 +377,17 @@ export function LicensesContent() {
                 ) : licenses.map((license) => (
                   <tr key={license.id} className="bg-card/60">
                     <td className="px-4 py-4">
-                      <div className="font-mono text-xs text-zinc-200">{license.maskedLicenseKey}</div>
-                      <div className="mt-1 text-xs text-zinc-500">{license.id}</div>
+                      <div className="font-mono text-xs text-zinc-200 break-all">{license.licenseKey ?? license.maskedLicenseKey}</div>
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => copyKey(license.licenseKey)}
+                          className="rounded border border-border px-2 py-0.5 text-xs text-zinc-400 transition hover:border-accent hover:text-accent"
+                        >
+                          Copy key
+                        </button>
+                        <span className="text-xs text-zinc-600">{license.id}</span>
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="font-medium text-white">{license.customer?.name ?? license.customerId}</div>

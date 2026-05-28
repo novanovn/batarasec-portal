@@ -190,7 +190,7 @@ export const licensesRoute = new Hono<Env>()
 
     return c.json(
       successResponse({
-        licenses: rows.map((row) => serializeLicense({ ...row.license, customer: row.customer })),
+        licenses: rows.map((row) => serializeLicense({ ...row.license, customer: row.customer }, true /* includeKey — admin portal */)),
         pagination: {
           page: query.data.page,
           pageSize: query.data.pageSize,

@@ -17,6 +17,7 @@ export const portalAdmins = pgTable(
     email: text("email").notNull(),
     passwordHash: text("password_hash").notNull(),
     name: text("name").notNull(),
+    mustChangePassword: boolean("must_change_password").notNull().default(false),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

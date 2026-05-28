@@ -16,6 +16,41 @@
 
 ## Quick Wins < 1 jam
 
+### [UI] Change password di settings
+- **Main task**: Quick Wins < 1 jam
+- **Subtask**: QW-05
+- **Owner**: Yudhistira
+- **Status**: done
+- **Worked**: 2026-05-28 — `POST /api/settings/change-password` (Argon2id verify + hash, audit `admin_password_changed`). `/settings` diberi card + link ke change password page. `pnpm typecheck` + `pnpm build` PASS.
+- **Priority**: P1
+- **Est**: ~45 menit
+- **Scope**: Tambah form change password di `/settings`: current password + new password + confirm. Argon2id verify + hash. Audit log `admin_password_changed`. Response tidak expose hash.
+- **Done when**: Admin bisa ganti password dari UI; current password salah ditolak; audit log tercatat.
+
+### [UI] Force change password on first login
+- **Main task**: Quick Wins < 1 jam
+- **Subtask**: QW-06
+- **Owner**: Yudhistira
+- **Status**: done
+- **Worked**: 2026-05-28 — Kolom `mustChangePassword boolean DEFAULT false` ditambah ke `portal_admins` (migration `0002_lumpy_tusk.sql`). Seed set `mustChangePassword: true`. `requireAdmin()` di server-auth cek flag dari DB dan redirect ke `/settings/change-password` sebelum akses portal. `allowMustChangePassword` opt-in untuk halaman change-password sendiri. Flag di-clear saat password berhasil diganti.
+- **Priority**: P1
+- **Est**: ~1 jam
+- **Depends on**: QW-05
+- **Scope**: Tambah flag `mustChangePassword` di schema `portal_admins`. Seed set `true`. Setelah login, kalau flag aktif redirect ke `/settings/change-password` sebelum bisa akses portal. Flag di-clear setelah password berhasil diganti.
+- **Done when**: Admin dengan OTP seed diredirect ke change password page setelah login; setelah ganti password bisa akses portal normal.
+
+### [UI] License detail page
+- **Main task**: Quick Wins < 1 jam
+- **Subtask**: QW-07
+- **Owner**: Yudhistira
+- **Status**: done
+- **Worked**: 2026-05-28 — Halaman `/licenses/[id]` dengan full key (textarea + copy), status badge, customer info, license metadata, revoke detail jika revoked, audit trail. Tombol revoke + resend dari halaman detail. Link "Detail" ditambah ke baris di licenses list. `pnpm typecheck` + `pnpm build` PASS.
+- **Priority**: P2
+- **Est**: ~1 jam
+- **Depends on**: QW-06
+- **Scope**: Halaman `/licenses/[id]`: full license key, status badge, customer info, `lastValidatedAt`, `lastInstanceId`, `emailSentAt`, expiry, revoke reason jika revoked, audit trail terkait license tersebut, tombol revoke + resend dari halaman detail.
+- **Done when**: Admin bisa klik license dari list dan melihat full detail + history di halaman terpisah.
+
 ### [DEPLOY] Staging Nginx reverse proxy
 - **Main task**: Quick Wins < 1 jam
 - **Subtask**: QW-04

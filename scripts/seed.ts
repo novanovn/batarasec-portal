@@ -28,6 +28,7 @@ async function main() {
     email: adminEmail,
     name: "Novan Hariman",
     passwordHash,
+    mustChangePassword: true,
   });
 
   console.log(`Created portal admin: ${adminEmail}`);

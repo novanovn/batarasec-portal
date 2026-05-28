@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type Settings = {
@@ -185,6 +186,19 @@ export function SettingsContent() {
                 </div>
               </div>
             ) : null}
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl xl:col-span-2">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold">Admin account</h2>
+              <Link
+                href="/settings/change-password"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-accent hover:text-white"
+              >
+                Change password
+              </Link>
+            </div>
+            <p className="mt-3 text-sm text-zinc-400">Minimum 12 characters. Use a strong, unique password.</p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl xl:col-span-2">

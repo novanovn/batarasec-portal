@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Customer = {
@@ -387,6 +388,9 @@ export function LicensesContent() {
                         >
                           Copy key
                         </button>
+                        <Link href={`/licenses/${license.id}`} className="rounded border border-border px-2 py-0.5 text-xs text-zinc-400 transition hover:border-accent hover:text-accent">
+                          Detail
+                        </Link>
                         <span className="text-xs text-zinc-600">{license.id}</span>
                       </div>
                     </td>

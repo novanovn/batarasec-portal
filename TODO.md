@@ -1,6 +1,6 @@
 # BataraSec Portal — Project TODO
 > Managed by: **Bisma** (PM Agent)
-> Last updated: 2026-05-28 (MinIO ditambahkan ke stack; Dockerfile fix untuk migrations; Nginx path routing /storage/+/s3/ ready; semua deploy artefak siap — PROD-01 s/d PROD-06 in_progress pending approval eksekusi)
+> Last updated: 2026-05-28 — PROD-01 s/d PROD-03 selesai; portal production live di https://portal.batarasec.com dengan TLS Cloudflare + HTTP/2; PROD-04 s/d PROD-06 in_progress
 > Sorted by: estimated time (shortest first)
 
 ---
@@ -306,7 +306,8 @@
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-01
 - **Owner**: Yudhistira
-- **Status**: in_progress
+- **Status**: done
+- **Worked**: 2026-05-28 — `scripts/gen-secrets.sh` dijalankan di VPS, semua secrets di-generate via `openssl rand`, `/opt/batarasec-portal/.env` dibuat dengan `chmod 600`, COOKIE_SECURE=true, PORTAL_URL=https://portal.batarasec.com. `pnpm deploy:check` pass.
 - **Priority**: P1
 - **Est**: ~30 menit
 - **Scope**: Generate semua production secrets (JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, LICENSE_SIGNING_SECRET, SETTINGS_ENCRYPTION_KEY), set COOKIE_SECURE=true, PORTAL_URL=https://portal.batarasec.com, SMTP credentials, dan buat file `.env` di VPS `/opt/batarasec-portal/.env`.
@@ -316,7 +317,8 @@
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-02
 - **Owner**: Yudhistira
-- **Status**: in_progress
+- **Status**: done
+- **Worked**: 2026-05-28 — repo di-pull ke VPS, Dockerfile difix (runner stage sekarang copy db/scripts/lib/hono/drizzle.config.ts/tsconfig.json), `docker compose up -d --build` berhasil, `pnpm db:migrate` applied successfully, `pnpm seed` created admin `novan.hariman@batarasec.com` (one-time password disimpan di credential.md), MinIO container up dan healthy. docker-compose.yml diupdate: portal expose `127.0.0.1:4000`, minio expose `127.0.0.1:9000/9001`.
 - **Priority**: P1
 - **Est**: ~1 jam
 - **Depends on**: PROD-01
@@ -327,7 +329,8 @@
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-03
 - **Owner**: Yudhistira
-- **Status**: in_progress
+- **Status**: done
+- **Worked**: 2026-05-28 — Nginx 1.24 diinstall di VPS host, Cloudflare Origin Certificate (valid s/d 2041) dipasang di `/etc/ssl/portal/`, `production.conf` diinstall (fix: `listen 443 ssl http2` untuk nginx 1.24 compatibility, upstream diubah dari Docker service names ke `127.0.0.1`), `nginx -t` pass, `https://portal.batarasec.com/api/health` returns HTTP/2 200 dengan HSTS + semua security headers.
 - **Priority**: P1
 - **Est**: ~1 jam
 - **Depends on**: PROD-02
@@ -338,7 +341,8 @@
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-04
 - **Owner**: Yudhistira
-- **Status**: in_progress
+- **Status**: done
+- **Worked**: 2026-05-28 — SMTP credentials (Hostinger) dikonfigurasi di VPS `.env`. Worker container `batarasec-portal-worker` ditambahkan ke `docker-compose.yml` (`restart: unless-stopped`, `command: pnpm worker:license-email`). License email berhasil dikirim ke `novanovn@gmail.com`. Tested beberapa sender: `noreply@batarasec.com` awalnya gagal (kemungkinan transient Hostinger delay), `novan.hariman@batarasec.com` dan `license@batarasec.com` keduanya berhasil masuk inbox. Setelah retest, `noreply@batarasec.com` pun masuk — kemungkinan masalah awal hanya timing/transient. `SMTP_FROM` production saat ini: `BataraSec <license@batarasec.com>`.
 - **Priority**: P1
 - **Est**: ~30 menit
 - **Depends on**: PROD-02
@@ -349,7 +353,8 @@
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-05
 - **Owner**: Yudhistira
-- **Status**: in_progress
+- **Status**: done
+- **Worked**: 2026-05-28 — Login ke `https://portal.batarasec.com/login`, buat customer dan generate license production. License key (`PORTAL_LICENSE_KEY`) tersimpan untuk dikonfigurasi di platform BataraSec.
 - **Priority**: P1
 - **Est**: ~30 menit
 - **Depends on**: PROD-02
@@ -360,7 +365,8 @@
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-06
 - **Owner**: Yudhistira + Karna
-- **Status**: in_progress
+- **Status**: done
+- **Worked**: 2026-05-28 — `PORTAL_KB_URL=https://portal.batarasec.com` dan `PORTAL_LICENSE_KEY` dikonfigurasi di platform env. Realtime license validation dan KB lookup smoke test dari platform ke portal production berhasil.
 - **Priority**: P1
 - **Est**: ~1 jam
 - **Depends on**: PROD-03, PROD-05

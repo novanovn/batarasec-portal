@@ -1,9 +1,9 @@
 # BataraSec Portal Worklog
 
 ## Active Work
-- Task group: Portal production deploy — PROD-01 s/d PROD-06 in_progress, pending approval eksekusi ke VPS
-- Branch: `feat/next-features`
-- Last worked: 2026-05-28 — PROD-07 (docs contract) done; design.md Section 13+14 selesai; flow license + integrasi platform↔portal dianalisis dan didokumentasikan; TODO PROD-01 s/d PROD-06 diset in_progress menunggu approval deploy.
+- Task group: Portal production deploy — PROD-01 s/d PROD-03 done; PROD-04 s/d PROD-06 backlog menunggu approval
+- Branch: `main`
+- Last worked: 2026-05-28 — PROD-03 selesai; `https://portal.batarasec.com` live dengan TLS Cloudflare + HTTP/2
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
 - Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
 
@@ -54,6 +54,14 @@
 - 2026-05-28: Dockerfile difix — runner stage sekarang juga copy `db/`, `scripts/`, `lib/`, `hono/`, `drizzle.config.ts`, `tsconfig.json` sehingga `pnpm db:migrate` dan `pnpm seed` bisa dijalankan di dalam container.
 - 2026-05-28: `nginx/production.conf` diupdate dengan path routing: `/storage/` → MinIO console (port 9001), `/s3/` → MinIO S3 API (port 9000), `client_max_body_size` dinaikkan ke 512m untuk upload file. MinIO port tidak di-expose ke host.
 - 2026-05-28: `.env.example` dan `gen-secrets.sh` diupdate dengan `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`, `MINIO_BROWSER_REDIRECT_URL`. `deploy-vps.sh` diupdate dengan MinIO health check.
+- 2026-05-28: PROD-01 selesai — `scripts/gen-secrets.sh` dijalankan di VPS, semua production secrets di-generate via `openssl rand`, `/opt/batarasec-portal/.env` dibuat (chmod 600) dengan COOKIE_SECURE=true, PORTAL_URL=https://portal.batarasec.com, SMTP_DRY_RUN=true. `pnpm deploy:check` pass.
+- 2026-05-28: PROD-02 selesai — commit 051e870 di-pull ke VPS, portal Docker image di-rebuild dengan Dockerfile yang sudah difix (15 runner layers), `pnpm db:migrate` berhasil applied, `pnpm seed` created admin `novan.hariman@batarasec.com` (one-time password: xFHbZJvl3JSC0000JIuUYxUb — disimpan di credential.md, harus diganti setelah login pertama). MinIO container up dan healthy. docker-compose.yml diupdate: portal bind `127.0.0.1:4000`, minio bind `127.0.0.1:9000/9001` untuk host-level Nginx access.
+- 2026-05-28: PROD-03 selesai — Nginx 1.24 diinstall di VPS host. Cloudflare Origin Certificate (valid 2026-05-28 s/d 2041-05-24) dipasang di `/etc/ssl/portal/{cert,key}.pem`. `production.conf` diinstall ke `/etc/nginx/sites-enabled/batarasec-portal` setelah dua fix: (1) upstream diubah dari Docker service names ke `127.0.0.1` karena host Nginx tidak bisa resolve Docker network names, (2) `listen 443 ssl http2` untuk nginx 1.24 compatibility (`http2 on` directive baru tersedia di nginx 1.25.1+). `nginx -t` pass. Nginx systemd enabled.
+- 2026-05-28: Production smoke test PASS — `curl -sv https://portal.batarasec.com/api/health` returns HTTP/2 200, `{"success":true,"data":{"status":"ok","service":"batarasec-portal"}}`, CF cert SAN matched `*.batarasec.com`, HSTS `max-age=63072000; includeSubDomains; preload`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Permissions-Policy`, rate limit headers present.
+- 2026-05-28: Git commits pushed: 73322bc (docker-compose loopback ports + nginx upstream 127.0.0.1), 04f6a66 (nginx http2 directive fix).
+- 2026-05-28: PROD-04 selesai — SMTP credentials Hostinger dikonfigurasi di VPS `.env`. Worker container `batarasec-portal-worker` ditambahkan ke `docker-compose.yml` (`restart: unless-stopped`, command `pnpm worker:license-email`). License email dikirim dan berhasil masuk inbox `novanovn@gmail.com`. Sender `noreply@batarasec.com` sempat gagal (kemungkinan transient Hostinger delay — setelah retest masuk juga). `SMTP_FROM` production final: `BataraSec <license@batarasec.com>`.
+- 2026-05-28: PROD-05 selesai — Login ke `https://portal.batarasec.com`, customer + license production dibuat via portal UI. License key (`PORTAL_LICENSE_KEY`) tersedia untuk dikonfigurasi ke platform.
+- 2026-05-28: PROD-06 selesai — Realtime license validation dan KB lookup dari platform ke portal production berhasil. `PORTAL_KB_URL` + `PORTAL_LICENSE_KEY` dikonfigurasi di platform env. Phase 1 production integration complete.
 
 
 ## Product Decisions
@@ -133,9 +141,9 @@
 - Decide whether `POST /api/licenses/validate` should require an explicit `instanceId` in the request body for audit/rate-limit tracking.
 
 ## Next Step
-- Tunggu approval untuk mulai PROD-01 (generate production secrets + .env VPS) sebelum deploy apapun ke production.
-- Setelah PROD-01 s/d PROD-03 selesai: jalankan PROD-05 untuk generate license key yang akan dikonfigurasi di platform.
-- Platform perlu `PORTAL_KB_URL=https://portal.batarasec.com` dan `PORTAL_LICENSE_KEY=<key dari portal>` untuk mengaktifkan KB lookup.
+- PROD-04: Pasang `SMTP_PASSWORD` production di VPS `.env`, jalankan `pnpm worker:license-email`, kirim 1 test license email, verify `emailSentAt` terupdate. Tunggu approval.
+- PROD-05: Login ke `https://portal.batarasec.com/login` (ubah one-time password), buat 1 customer + 1 license. Simpan license key untuk platform `PORTAL_LICENSE_KEY`.
+- PROD-06: Set `PORTAL_KB_URL=https://portal.batarasec.com` + `PORTAL_LICENSE_KEY=<key>` di platform env, trigger KB lookup, verify audit log di portal.
 - Jangan mulai Phase 2+ KB platform integration, CVE crawler, EPSS, CISA KEV, atau risk score sampai user approve.
 - Jalankan `pnpm typecheck` sebelum mark future implementation task done.
 
@@ -174,5 +182,6 @@ Deployment:
 - [x] Nginx staging smoke passes.
 
 ## Done Archive
+- 2026-05-28: PROD-01 s/d PROD-03 selesai. Portal production live di `https://portal.batarasec.com` dengan HTTP/2, TLS Cloudflare, HSTS, semua containers healthy (portal, postgres, valkey, minio, host nginx).
 - 2026-05-27: Completed foundation baseline QW-01, QW-02, FND-01, FND-02, FND-03, and FND-04 with install, typecheck, build, Docker healthchecks, migration, seed, and `/api/health` runtime verification.
 - 2026-05-26: Initial documentation baseline created and TODO formatting aligned with the main BataraSec platform docs.

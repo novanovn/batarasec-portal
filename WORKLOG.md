@@ -67,6 +67,13 @@
 - 2026-05-28: QW-05 selesai — `POST /api/settings/change-password` (Argon2id verify + hash + audit `admin_password_changed`). Link change password di settings UI.
 - 2026-05-28: QW-06 selesai — Migration `0002_lumpy_tusk.sql` tambah `must_change_password` ke `portal_admins`. Seed set flag `true`. `requireAdmin()` redirect ke `/settings/change-password` kalau flag aktif. Flag di-clear setelah ganti password.
 - 2026-05-28: QW-07 selesai — `/licenses/[id]` detail page: full key, status badge, customer info, metadata, audit trail, revoke/resend actions. Link "Detail" di licenses list.
+- 2026-05-30: Platform integration update dari sisi platform (repo BataraSec, branch feat/next-features-p2-portal):
+  - `portalLicenseClient.ts` — validate license ke `portal.batarasec.com` dengan 5s timeout + fail-safe (commit 80afa9b)
+  - `GET /admin/portal/status` + `POST /admin/portal/validate-license` — admin dapat trigger validasi manual
+  - Admin Settings: Portal Integration section (KB status, license status, Validate Now button)
+  - License grace period: status active/grace/expired, amber banner, `LICENSE_GRACE_DAYS` env (commit ba994a7)
+  - End-to-end PROD-06 smoke test PASS: WSL staging → portal.batarasec.com → `valid: true, tier: enterprise`
+  - Platform behavior: startup sync kalau `PORTAL_LICENSE_SYNC=true`, KB lookup enrich AI context dari portal, fully functional kalau portal down. License lokal HMAC tetap independent.
 - 2026-05-28: LIC-07 selesai — Migration `0001_bouncy_amphibian.sql` dibuat (ALTER DEFAULT + backfill UPDATE). Schema default diubah ke `issued`. Middleware izinkan `issued`+`active`, block `revoked` dengan pesan spesifik. `POST /api/licenses/validate` auto-upgrade `issued → active` + audit log `license_activated` saat first validation. Generate license default `issued`. Revoke allow dari `issued` maupun `active`. Dashboard tambah card `Issued licenses` (5 cards, xl:grid-cols-5). UI badge: amber `Issued`, hijau `Active`, merah `Revoked`. Filter dropdown tambah `Issued`. `pnpm typecheck` dan `pnpm build` PASS.
 
 

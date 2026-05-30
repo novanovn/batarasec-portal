@@ -3,7 +3,7 @@
 ## Active Work
 - Task group: Phase 1 complete — semua PROD-01 s/d PROD-07, LIC-07, QW-05/06/07 done
 - Branch: `main`
-- Last worked: 2026-05-30 — platform integration confirmed; portal Phase 1 production complete
+- Last worked: 2026-05-31 — docs sweep: todo.md header, design.md status + roadmap, worklog Active Work updated. Phase 1 fully documented.
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
 - Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
 - Next: menunggu keputusan Phase 2 (CVE crawler + risk score) atau fokus platform tasks dulu

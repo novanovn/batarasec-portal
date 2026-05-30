@@ -1,6 +1,6 @@
 # BataraSec Portal — Project TODO
 > Managed by: **Bisma** (PM Agent)
-> Last updated: 2026-05-28 — PROD-01 s/d PROD-03 selesai; portal production live di https://portal.batarasec.com dengan TLS Cloudflare + HTTP/2; PROD-04 s/d PROD-06 in_progress
+> Last updated: 2026-05-31 — Phase 1 complete. Semua PROD-01 s/d PROD-07, LIC-07, QW-05/06/07 done. Portal production live di https://portal.batarasec.com. Platform integration (license validate + KB lookup) confirmed working end-to-end. Menunggu keputusan Phase 2 (CVE crawler / risk score) atau fokus platform tasks dulu.
 > Sorted by: estimated time (shortest first)
 
 ---

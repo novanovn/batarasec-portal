@@ -1,9 +1,9 @@
 # BataraSec Portal — Technical Design Document
 
 **Version**: 0.1.0  
-**Status**: Living document — update when architecture changes  
+**Status**: Phase 1 complete — production live at https://portal.batarasec.com  
 **Audience**: Engineer, DevOps, Security Reviewer  
-**Last updated**: 2026-05-26
+**Last updated**: 2026-05-31
 
 ---
 
@@ -21,11 +21,11 @@ This repo is separate from the main BataraSec platform. The main platform remain
 
 ### Roadmap fit
 
-- Phase 1: Portal license management + KB endpoints — current work.
-- Phase 2: KB local cache in the main BataraSec platform.
-- Phase 3: Central KB platform integration.
-- Phase 4: CVE crawler in portal worker.
-- Phase 5: Risk Score with EPSS + CISA KEV.
+- Phase 1: Portal license management + KB endpoints — **complete** (production live 2026-05-28).
+- Phase 2: KB local cache in the main BataraSec platform — backlog.
+- Phase 3: Central KB platform integration — backlog.
+- Phase 4: CVE crawler in portal worker — backlog.
+- Phase 5: Risk Score with EPSS + CISA KEV — backlog.
 
 ---
 

@@ -1,11 +1,12 @@
 # BataraSec Portal Worklog
 
 ## Active Work
-- Task group: Portal production deploy — PROD-01 s/d PROD-03 done; PROD-04 s/d PROD-06 backlog menunggu approval
+- Task group: Phase 1 complete — semua PROD-01 s/d PROD-07, LIC-07, QW-05/06/07 done
 - Branch: `main`
-- Last worked: 2026-05-28 — PROD-03 selesai; `https://portal.batarasec.com` live dengan TLS Cloudflare + HTTP/2
+- Last worked: 2026-05-30 — platform integration confirmed; portal Phase 1 production complete
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
 - Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
+- Next: menunggu keputusan Phase 2 (CVE crawler + risk score) atau fokus platform tasks dulu
 
 ## Current State
 - 2026-05-26: Created initial portal documentation baseline: `CLAUDE.md`, `TODO.md`, `design.md`, and `WORKLOG.md`.
@@ -67,6 +68,7 @@
 - 2026-05-28: QW-05 selesai — `POST /api/settings/change-password` (Argon2id verify + hash + audit `admin_password_changed`). Link change password di settings UI.
 - 2026-05-28: QW-06 selesai — Migration `0002_lumpy_tusk.sql` tambah `must_change_password` ke `portal_admins`. Seed set flag `true`. `requireAdmin()` redirect ke `/settings/change-password` kalau flag aktif. Flag di-clear setelah ganti password.
 - 2026-05-28: QW-07 selesai — `/licenses/[id]` detail page: full key, status badge, customer info, metadata, audit trail, revoke/resend actions. Link "Detail" di licenses list.
+- 2026-05-30: Verifikasi audit log production — tidak ada entri `license_activated` karena `lic_e1546` (enterprise, dipakai platform) sudah punya `lastValidatedAt` sebelum LIC-07 di-deploy; migration backfill langsung set ke `active` tanpa lewat flow validate baru. Audit `license_activated` akan muncul untuk license yang di-generate setelah LIC-07 dan pertama kali divalidasi platform. `license_generate` (3x) dan `login` (7x) terkonfirmasi di log.
 - 2026-05-30: Platform integration update dari sisi platform (repo BataraSec, branch feat/next-features-p2-portal):
   - `portalLicenseClient.ts` — validate license ke `portal.batarasec.com` dengan 5s timeout + fail-safe (commit 80afa9b)
   - `GET /admin/portal/status` + `POST /admin/portal/validate-license` — admin dapat trigger validasi manual

@@ -36,10 +36,10 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 space-y-5">
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium text-zinc-200">
-          Email
+    <form onSubmit={onSubmit} className="mt-8 space-y-6">
+      <div className="space-y-2.5">
+        <label htmlFor="email" className="block text-sm font-medium text-foreground">
+          Email Address
         </label>
         <input
           id="email"
@@ -47,12 +47,14 @@ export function LoginForm() {
           type="email"
           autoComplete="email"
           required
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 transition focus:border-accent focus:ring-4"
-          placeholder="novan.hariman@batarasec.com"
+          disabled={loading}
+          className="input"
+          placeholder="owner@batarasec.com"
         />
       </div>
-      <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium text-zinc-200">
+
+      <div className="space-y-2.5">
+        <label htmlFor="password" className="block text-sm font-medium text-foreground">
           Password
         </label>
         <input
@@ -61,22 +63,36 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 transition focus:border-accent focus:ring-4"
+          disabled={loading}
+          className="input"
           placeholder="••••••••••••"
         />
       </div>
-      {error ? (
-        <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {error}
-        </p>
-      ) : null}
+
+      {error && (
+        <div className="rounded-lg border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger/90 animate-in fade-in">
+          <p className="font-medium">{error}</p>
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-primary w-full"
       >
-        {loading ? "Memproses..." : "Masuk"}
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+            Memproses...
+          </span>
+        ) : (
+          "Masuk ke Portal"
+        )}
       </button>
+
+      <p className="text-center text-xs text-muted">
+        Hanya pemilik aplikasi yang dapat mengakses portal ini
+      </p>
     </form>
   );
 }

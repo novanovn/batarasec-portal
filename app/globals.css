@@ -1,6 +1,8 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme inline {
+:root {
   --color-background: #141416;
   --color-card: #1c1c1e;
   --color-border: #3f3f46;
@@ -13,11 +15,14 @@
   --color-danger: #ef4444;
   --color-muted: #71717a;
   --color-muted-dark: #52525b;
-  
   --radius: 0.5rem;
 }
 
 @layer base {
+  html {
+    color-scheme: dark;
+  }
+
   :root {
     color-scheme: dark;
   }

@@ -1,19 +1,84 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  color-scheme: dark;
+@theme inline {
+  --color-background: #141416;
+  --color-card: #1c1c1e;
+  --color-border: #3f3f46;
+  --color-foreground: #f4f4f5;
+  --color-accent: #185fa5;
+  --color-accent-dark: #0f4a7a;
+  --color-accent-light: #2a7acc;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-muted: #71717a;
+  --color-muted-dark: #52525b;
+  
+  --radius: 0.5rem;
 }
 
-body {
-  margin: 0;
-  background: #141416;
-  color: #f4f4f5;
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    @apply text-foreground transition-colors hover:text-accent;
+    text-decoration: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@layer components {
+  .card {
+    @apply bg-card border border-border rounded-[var(--radius)] p-4;
+  }
+
+  .btn {
+    @apply px-4 py-2 rounded-[var(--radius)] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-dark;
+  }
+
+  .btn-secondary {
+    @apply btn bg-card text-foreground border border-border hover:bg-border;
+  }
+
+  .btn-outline {
+    @apply btn bg-transparent border border-border text-foreground hover:bg-card;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 bg-card border border-border rounded-[var(--radius)] text-foreground placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-1 rounded-[var(--radius)] bg-card border border-border text-sm font-medium text-foreground;
+  }
 }

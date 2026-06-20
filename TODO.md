@@ -51,6 +51,17 @@
 - **Scope**: Halaman `/licenses/[id]`: full license key, status badge, customer info, `lastValidatedAt`, `lastInstanceId`, `emailSentAt`, expiry, revoke reason jika revoked, audit trail terkait license tersebut, tombol revoke + resend dari halaman detail.
 - **Done when**: Admin bisa klik license dari list dan melihat full detail + history di halaman terpisah.
 
+### [UI] Login page enterprise polish
+- **Main task**: Quick Wins < 1 jam
+- **Subtask**: QW-08
+- **Owner**: Yudhistira
+- **Status**: done
+- **Worked**: 2026-06-20 — Split layout (brand panel kiri + form kanan), glow accent follow mouse, feature grid 2×2 (Security, Customers, Licenses, KB) dengan icon, dot grid pattern subtle, prefix icon Mail/Lock di input, show-hide password, spinner loading, auto-focus email, error alert. `pnpm typecheck` + `pnpm build` PASS.
+- **Priority**: P2
+- **Est**: ~1 jam
+- **Scope**: Improve `/login` visual enterprise-minimal: brand panel dengan glow interaktif + feature cards, form dengan prefix icon, toggle password, loading spinner, a11y improvement.
+- **Done when**: Login page terlihat professional enterprise, glow follow mouse di desktop, form UX lengkap (icon, toggle, spinner, error), `pnpm typecheck` + pnpm build` pass.
+
 ### [DEPLOY] Staging Nginx reverse proxy
 - **Main task**: Quick Wins < 1 jam
 - **Subtask**: QW-04

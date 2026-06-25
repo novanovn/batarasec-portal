@@ -1,13 +1,9 @@
-import { headers } from "next/headers";
 import { LogoutButton } from "@/components/logout-button";
 import { PortalSidebar } from "@/components/portal-sidebar";
 import { requireAdmin } from "@/lib/server-auth";
 
 export default async function PortalLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-  const isChangePassword = pathname === "/settings/change-password";
-  const admin = await requireAdmin({ allowMustChangePassword: isChangePassword });
+  const admin = await requireAdmin({ allowMustChangePassword: true });
 
   return (
     <div className="min-h-screen bg-background text-foreground lg:flex">

@@ -32,8 +32,8 @@ export function LoginForm() {
       setLoading(false);
       setError(
         response.status === 429
-          ? "Terlalu banyak percobaan login. Coba lagi nanti."
-          : "Email atau password tidak valid.",
+          ? "Too many login attempts. Please try again later."
+          : "Invalid email or password.",
       );
       return;
     }
@@ -82,7 +82,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+            aria-label={showPassword ? "Hide password" : "Show password"}
             aria-pressed={showPassword}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-zinc-500 transition hover:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-accent/40"
           >
@@ -107,7 +107,7 @@ export function LoginForm() {
         className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-        {loading ? "Memproses..." : "Masuk"}
+        {loading ? "Processing..." : "Sign in"}
       </button>
     </form>
   );

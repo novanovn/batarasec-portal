@@ -31,10 +31,10 @@ export default async function LoginPage() {
             Admin Login
           </p>
           <h1 className="mt-3 text-2xl font-bold tracking-tight text-foreground">
-            Masuk ke akun Anda
+            Sign in to your account
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
-            Kredensial operator diterbitkan oleh admin BataraSec.
+            Operator credentials are issued by your BataraSec administrator.
           </p>
 
           <LoginForm />

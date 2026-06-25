@@ -95,7 +95,7 @@ export function LoginBrandPanel() {
           Central control for licenses &amp; knowledge base.
         </h2>
         <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-          Kelola customer, license, dan Central Knowledge Base BataraSec dari satu tempat.
+          Manage customers, licenses, and the Central Knowledge Base from one place.
         </p>
 
         <ul className="mt-8 grid grid-cols-2 gap-3">

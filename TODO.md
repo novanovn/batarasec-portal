@@ -1,6 +1,6 @@
 # BataraSec Portal — Project TODO
 > Managed by: **Bisma** (PM Agent)
-> Last updated: 2026-05-31 — Phase 1 complete. Semua PROD-01 s/d PROD-07, LIC-07, QW-05/06/07 done. Portal production live di https://portal.batarasec.com. Platform integration (license validate + KB lookup) confirmed working end-to-end. Menunggu keputusan Phase 2 (CVE crawler / risk score) atau fokus platform tasks dulu.
+> Last updated: 2026-06-25 — Translation and design synchronization sweep across all portal components complete (`pnpm typecheck` PASS). Ready for deployment.
 > Sorted by: estimated time (shortest first)
 
 ---
@@ -57,6 +57,7 @@
 - **Owner**: Yudhistira
 - **Status**: done
 - **Worked**: 2026-06-20 — Split layout (brand panel kiri + form kanan), glow accent follow mouse, feature grid 2×2 (Security, Customers, Licenses, KB) dengan icon, dot grid pattern subtle, prefix icon Mail/Lock di input, show-hide password, spinner loading, auto-focus email, error alert. `pnpm typecheck` + `pnpm build` PASS.
+- **Deploy note**: 2026-06-22 — Revalidated commit `148f439` locally: `pnpm typecheck` PASS, `pnpm build` PASS. Production clean-install deploy blocked: SSH alias `batarasec-portal-prod` unresolved and key `C:\Users\Novan\.ssh\batarasec_portal_prod` missing on current workstation.
 - **Priority**: P2
 - **Est**: ~1 jam
 - **Scope**: Improve `/login` visual enterprise-minimal: brand panel dengan glow interaktif + feature cards, form dengan prefix icon, toggle password, loading spinner, a11y improvement.

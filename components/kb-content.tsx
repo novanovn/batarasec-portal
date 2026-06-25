@@ -116,7 +116,7 @@ export function KbContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal memuat KB entries.");
+      setError("Failed to load KB entries.");
       setLoading(false);
       return;
     }
@@ -166,7 +166,7 @@ export function KbContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal menyimpan KB entry.");
+      setError("Failed to save KB entry.");
       setSaving(false);
       return;
     }
@@ -186,7 +186,7 @@ export function KbContent() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Knowledge Base</h1>
             <p className="mt-3 max-w-2xl text-zinc-300">
-              Cari CVE, review kontribusi customer, dan kurasi ringkasan risiko/mitigasi untuk endpoint KB pusat.
+              Search CVEs, review customer contributions, and curate risk/mitigation summaries for the central KB endpoint.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-zinc-300">
@@ -202,7 +202,7 @@ export function KbContent() {
               value={query}
               onChange={(event) => { setQuery(event.target.value); setPage(1); }}
               className="rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Cari CVE atau summary"
+              placeholder="Search CVE or summary"
             />
             <select value={severity} onChange={(event) => { setSeverity(event.target.value); setPage(1); }} className="rounded-lg border border-border bg-background px-4 py-3 text-sm">
               <option value="">All severity</option>
@@ -226,9 +226,9 @@ export function KbContent() {
 
           <div className="mt-6 space-y-3">
             {loading ? (
-              <p className="rounded-xl border border-border bg-background px-4 py-8 text-center text-sm text-zinc-400">Memuat KB entries...</p>
+              <p className="rounded-xl border border-border bg-background px-4 py-8 text-center text-sm text-zinc-400">Loading KB entries...</p>
             ) : entries.length === 0 ? (
-              <p className="rounded-xl border border-border bg-background px-4 py-8 text-center text-sm text-zinc-400">Belum ada KB entry.</p>
+              <p className="rounded-xl border border-border bg-background px-4 py-8 text-center text-sm text-zinc-400">No KB entries yet.</p>
             ) : entries.map((entry) => (
               <button
                 key={entry.id}
@@ -302,11 +302,11 @@ export function KbContent() {
                 Mark as curated by BataraSec team
               </label>
               <button disabled={saving} className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60">
-                {saving ? "Menyimpan..." : "Save curation"}
+                {saving ? "Saving..." : "Save curation"}
               </button>
             </div>
           ) : (
-            <p className="mt-5 rounded-xl border border-border bg-background px-4 py-8 text-center text-sm text-zinc-400">Pilih KB entry untuk mulai kurasi.</p>
+            <p className="mt-5 rounded-xl border border-border bg-background px-4 py-8 text-center text-sm text-zinc-400">Select a KB entry to start curating.</p>
           )}
         </form>
       </div>

@@ -61,7 +61,7 @@ export function SettingsContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal memuat settings.");
+      setError("Failed to load settings.");
       setLoading(false);
       return;
     }
@@ -82,7 +82,7 @@ export function SettingsContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal menjalankan SMTP readiness check.");
+      setError("Failed to run SMTP readiness check.");
       setTesting(false);
       return;
     }
@@ -104,7 +104,7 @@ export function SettingsContent() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Settings</h1>
             <p className="mt-3 max-w-2xl text-zinc-300">
-              Cek konfigurasi portal dan SMTP tanpa mengekspos secret seperti password, token signing, atau encryption key.
+              Check portal and SMTP configurations without exposing secrets like passwords, token signing, or encryption keys.
             </p>
           </div>
           {settings ? <StatusBadge enabled={settings.smtp.configured} /> : null}
@@ -118,7 +118,7 @@ export function SettingsContent() {
       ) : null}
 
       {loading ? (
-        <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-zinc-400 shadow-2xl">Memuat settings...</div>
+        <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-zinc-400 shadow-2xl">Loading settings...</div>
       ) : settings ? (
         <div className="grid gap-6 xl:grid-cols-2">
           <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">

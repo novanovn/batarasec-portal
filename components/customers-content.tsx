@@ -63,7 +63,7 @@ export function CustomersContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal memuat customer.");
+      setError("Failed to load customers.");
       setLoading(false);
       return;
     }
@@ -99,7 +99,7 @@ export function CustomersContent() {
 
     if (!response.ok) {
       setSaving(false);
-      setError(response.status === 409 ? "Email customer sudah terdaftar." : "Gagal membuat customer.");
+      setError(response.status === 409 ? "Customer email is already registered." : "Failed to create customer.");
       return;
     }
 
@@ -119,7 +119,7 @@ export function CustomersContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal mengubah status customer.");
+      setError("Failed to update customer status.");
       return;
     }
 
@@ -135,7 +135,7 @@ export function CustomersContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal menghapus customer.");
+      setError("Failed to delete customer.");
       return;
     }
 
@@ -150,25 +150,25 @@ export function CustomersContent() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Customers</h1>
             <p className="mt-3 max-w-2xl text-zinc-300">
-              Kelola customer portal, status akun, dan data kontak untuk license lifecycle.
+              Manage portal customers, account status, and contact info for the license lifecycle.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-zinc-300">
-            Total customer aktif: <span className="font-semibold text-white">{total}</span>
+            Active customers: <span className="font-semibold text-white">{total}</span>
           </div>
         </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
         <form onSubmit={createCustomer} className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
-          <h2 className="text-xl font-semibold">Tambah customer</h2>
+          <h2 className="text-xl font-semibold">Add customer</h2>
           <div className="mt-5 space-y-4">
             <input
               required
               value={form.name}
               onChange={(event) => setForm({ ...form, name: event.target.value })}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Nama customer"
+              placeholder="Customer name"
             />
             <input
               required
@@ -176,25 +176,25 @@ export function CustomersContent() {
               value={form.email}
               onChange={(event) => setForm({ ...form, email: event.target.value })}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Email billing/admin"
+              placeholder="Billing / Admin email"
             />
             <input
               value={form.company}
               onChange={(event) => setForm({ ...form, company: event.target.value })}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Perusahaan"
+              placeholder="Company"
             />
             <input
               value={form.phone}
               onChange={(event) => setForm({ ...form, phone: event.target.value })}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Nomor telepon"
+              placeholder="Phone number"
             />
             <textarea
               value={form.notes}
               onChange={(event) => setForm({ ...form, notes: event.target.value })}
               className="min-h-24 w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-              placeholder="Catatan internal"
+              placeholder="Internal notes"
             />
             <select
               value={form.status}
@@ -208,19 +208,19 @@ export function CustomersContent() {
               disabled={saving}
               className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Menyimpan..." : "Buat customer"}
+              {saving ? "Saving..." : "Create customer"}
             </button>
           </div>
         </form>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-xl font-semibold">Daftar customer</h2>
+            <h2 className="text-xl font-semibold">Customer list</h2>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4 md:max-w-xs"
-              placeholder="Cari nama/email/perusahaan"
+              placeholder="Search name / email / company"
             />
           </div>
 
@@ -244,11 +244,11 @@ export function CustomersContent() {
               <tbody className="divide-y divide-border">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-zinc-400">Memuat customer...</td>
+                    <td colSpan={5} className="px-4 py-8 text-center text-zinc-400">Loading customers...</td>
                   </tr>
                 ) : customers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-zinc-400">Belum ada customer.</td>
+                    <td colSpan={5} className="px-4 py-8 text-center text-zinc-400">No customers yet.</td>
                   </tr>
                 ) : customers.map((customer) => (
                   <tr key={customer.id} className="bg-card/60">
@@ -263,7 +263,7 @@ export function CustomersContent() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-zinc-400">
-                      {new Date(customer.updatedAt).toLocaleDateString("id-ID")}
+                      {new Date(customer.updatedAt).toLocaleDateString("en-US")}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex justify-end gap-2">

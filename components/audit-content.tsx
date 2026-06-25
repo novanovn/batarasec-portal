@@ -32,7 +32,7 @@ const emptyFilters = {
 };
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleString("id-ID", {
+  return new Date(value).toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   });
@@ -85,7 +85,7 @@ export function AuditContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal memuat audit log.");
+      setError("Failed to load audit logs.");
       setLoading(false);
       return;
     }
@@ -120,7 +120,7 @@ export function AuditContent() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Audit Log</h1>
             <p className="mt-3 max-w-2xl text-zinc-300">
-              Review aktivitas sensitif portal: login, customer lifecycle, license lifecycle, dan perubahan operasional.
+              Review sensitive portal activity: logins, customer lifecycle, license lifecycle, and operational changes.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-zinc-300">
@@ -190,9 +190,9 @@ export function AuditContent() {
             </thead>
             <tbody className="divide-y divide-border">
               {loading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">Memuat audit log...</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">Loading audit logs...</td></tr>
               ) : auditLogs.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">Belum ada audit log.</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">No audit logs yet.</td></tr>
               ) : auditLogs.map((entry) => (
                 <tr key={entry.id} className="bg-card/60 align-top">
                   <td className="px-4 py-4 text-zinc-400">{formatDate(entry.createdAt)}</td>

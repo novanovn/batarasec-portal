@@ -23,7 +23,7 @@ export function LogoutButton() {
       disabled={loading}
       className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {loading ? "Keluar..." : "Logout"}
+      {loading ? "Logging out..." : "Logout"}
     </button>
   );
 }

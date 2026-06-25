@@ -4,7 +4,7 @@ import { kbContributions, kbEntries, portalAuditLog, portalCustomers, portalLice
 import { requireAdmin } from "@/lib/server-auth";
 
 function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return new Intl.DateTimeFormat("en-US", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -56,11 +56,11 @@ export async function DashboardContent() {
   ]);
 
   const stats = [
-    { label: "Active customers", value: activeCustomers?.value ?? 0, helper: "Customer siap menerima license" },
-    { label: "Active licenses", value: activeLicenses?.value ?? 0, helper: "Sudah divalidasi platform" },
-    { label: "Issued licenses", value: issuedLicenses?.value ?? 0, helper: "Diterbitkan, belum diaktifkan" },
-    { label: "Expiring 30 days", value: expiringLicenses?.value ?? 0, helper: "Perlu follow-up renewal" },
-    { label: "KB entries", value: kbEntryTotal?.value ?? 0, helper: `${kbContributionTotal?.value ?? 0} contribution diterima` },
+    { label: "Active customers", value: activeCustomers?.value ?? 0, helper: "Customers ready to receive licenses" },
+    { label: "Active licenses", value: activeLicenses?.value ?? 0, helper: "Already validated by platform" },
+    { label: "Issued licenses", value: issuedLicenses?.value ?? 0, helper: "Issued, not yet activated" },
+    { label: "Expiring 30 days", value: expiringLicenses?.value ?? 0, helper: "Renewal follow-up required" },
+    { label: "KB entries", value: kbEntryTotal?.value ?? 0, helper: `${kbContributionTotal?.value ?? 0} contributions received` },
   ];
 
   return (
@@ -71,7 +71,7 @@ export async function DashboardContent() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Welcome back, {admin.name}</h1>
             <p className="mt-3 max-w-2xl text-zinc-300">
-              Snapshot operasional portal untuk customer, license, dan Central Knowledge Base BataraSec.
+              Operational snapshot for customers, licenses, and the Central Knowledge Base.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-zinc-300">
@@ -95,9 +95,9 @@ export async function DashboardContent() {
           <h2 className="text-xl font-semibold">Operational focus</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {[
-              ["Customers", "Tambah customer aktif sebelum generate license baru."],
-              ["Licenses", "Pantau expiry, revoke akses yang sudah tidak valid, dan resend email jika diperlukan."],
-              ["Knowledge Base", "Review kontribusi customer instance untuk memperkaya CVE remediation."],
+              ["Customers", "Add active customers before generating new licenses."],
+              ["Licenses", "Monitor expiry, revoke invalid access, and resend emails as necessary."],
+              ["Knowledge Base", "Review contributions from customer instances to enrich CVE remediation."],
             ].map(([title, description]) => (
               <div key={title} className="rounded-xl border border-border bg-background p-4">
                 <p className="font-semibold text-white">{title}</p>
@@ -112,7 +112,7 @@ export async function DashboardContent() {
           <div className="mt-5 space-y-3">
             {recentAudit.length === 0 ? (
               <p className="rounded-xl border border-border bg-background px-4 py-6 text-center text-sm text-zinc-400">
-                Belum ada audit activity.
+                No audit activity yet.
               </p>
             ) : recentAudit.map((entry) => (
               <div key={entry.id} className="rounded-xl border border-border bg-background p-4">

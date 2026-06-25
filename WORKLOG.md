@@ -1,12 +1,12 @@
 # BataraSec Portal Worklog
 
 ## Active Work
-- Task group: Phase 1 complete — semua PROD-01 s/d PROD-07, LIC-07, QW-05/06/07 done
+- Task group: UI polish and localization — translation and style sync sweep completed, ready for production rollout
 - Branch: `main`
-- Last worked: 2026-05-31 — docs sweep: todo.md header, design.md status + roadmap, worklog Active Work updated. Phase 1 fully documented.
+- Last worked: 2026-06-25 — Translated all remaining portal UI components from Indonesian to English and synced date format locales to `en-US`. Ran typecheck successfully.
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
 - Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
-- Next: menunggu keputusan Phase 2 (CVE crawler + risk score) atau fokus platform tasks dulu
+- Next: commit and push changes, then perform VPS deploy via SSH using user ubuntu.
 
 ## Current State
 - 2026-05-26: Created initial portal documentation baseline: `CLAUDE.md`, `TODO.md`, `design.md`, and `WORKLOG.md`.
@@ -77,6 +77,8 @@
   - End-to-end PROD-06 smoke test PASS: WSL staging → portal.batarasec.com → `valid: true, tier: enterprise`
   - Platform behavior: startup sync kalau `PORTAL_LICENSE_SYNC=true`, KB lookup enrich AI context dari portal, fully functional kalau portal down. License lokal HMAC tetap independent.
 - 2026-05-28: LIC-07 selesai — Migration `0001_bouncy_amphibian.sql` dibuat (ALTER DEFAULT + backfill UPDATE). Schema default diubah ke `issued`. Middleware izinkan `issued`+`active`, block `revoked` dengan pesan spesifik. `POST /api/licenses/validate` auto-upgrade `issued → active` + audit log `license_activated` saat first validation. Generate license default `issued`. Revoke allow dari `issued` maupun `active`. Dashboard tambah card `Issued licenses` (5 cards, xl:grid-cols-5). UI badge: amber `Issued`, hijau `Active`, merah `Revoked`. Filter dropdown tambah `Issued`. `pnpm typecheck` dan `pnpm build` PASS.
+- 2026-06-20: QW-08 selesai — Login page enterprise polish di `/login`: split brand/form layout, interactive glow, feature grid, dot pattern, input icons, password show/hide, loading spinner, autofocus, safe error alert. Commit terbaru local `148f439`.
+- 2026-06-25: UI translation sweep — translated all remaining portal pages (dashboard, customers, licenses, license-detail, audit, kb, settings, logout button) from Indonesian to English. Standardized date/time locale formatting to `en-US`. Synced visual design cues. `pnpm typecheck` PASS.
 
 
 ## Product Decisions
@@ -119,6 +121,7 @@
 - 2026-05-27: `pnpm install` passed after replacing nonexistent `@hono/secure-headers` with Hono's built-in `hono/secure-headers` middleware.
 - 2026-05-27: `pnpm typecheck` passed.
 - 2026-05-27: `pnpm build` passed; Next.js production build completed successfully.
+- 2026-06-22: QW-08 revalidation passed locally: `pnpm typecheck` OK and `pnpm build` OK on commit `148f439` (Next.js 15.5.18, `/login` route built at 3.81 kB, first load 105 kB). Production deploy skipped/blocked by missing VPS SSH key/alias on this workstation.
 - 2026-05-27: `docker compose up -d postgres valkey` started PostgreSQL and Valkey; `docker compose ps` reported both containers healthy.
 - 2026-05-27: `pnpm db:generate` created `db/migrations/0000_curved_christian_walker.sql` for 6 Phase 1 tables.
 - 2026-05-27: `pnpm db:migrate` applied migrations successfully to local PostgreSQL.

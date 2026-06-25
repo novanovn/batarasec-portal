@@ -140,7 +140,7 @@ export function LicensesContent() {
     ]);
 
     if (!customersResponse.ok || !licensesResponse.ok) {
-      setError("Gagal memuat data lisensi.");
+      setError("Failed to load license data.");
       setLoading(false);
       return;
     }
@@ -165,7 +165,7 @@ export function LicensesContent() {
 
     if (form.features.length === 0) {
       setSaving(false);
-      setError("Pilih minimal 1 feature untuk license.");
+      setError("Select at least 1 feature for the license.");
       return;
     }
 
@@ -184,7 +184,7 @@ export function LicensesContent() {
 
     if (!response.ok) {
       setSaving(false);
-      setError("Gagal generate license.");
+      setError("Failed to generate license.");
       return;
     }
 
@@ -206,7 +206,7 @@ export function LicensesContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal revoke license.");
+      setError("Failed to revoke license.");
       return;
     }
 
@@ -222,7 +222,7 @@ export function LicensesContent() {
     });
 
     if (!response.ok) {
-      setError("Gagal enqueue resend email.");
+      setError("Failed to enqueue email resend.");
       return;
     }
   }
@@ -240,7 +240,7 @@ export function LicensesContent() {
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Licenses</h1>
             <p className="mt-3 max-w-2xl text-zinc-300">
-              Generate, inspect, revoke, dan resend license customer BataraSec.
+              Generate, inspect, revoke, and resend customer licenses for BataraSec.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-zinc-300">
@@ -259,7 +259,7 @@ export function LicensesContent() {
               onChange={(event) => setForm({ ...form, customerId: event.target.value })}
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
             >
-              <option value="">Pilih customer aktif</option>
+              <option value="">Select active customer</option>
               {customers.map((customer) => (
                 <option key={customer.id} value={customer.id}>{customer.name} — {customer.email}</option>
               ))}
@@ -291,11 +291,11 @@ export function LicensesContent() {
               {form.features.map((feature) => (
                 <div key={feature} className="rounded-md border border-border px-3 py-2 font-mono text-xs text-zinc-200">{feature}</div>
               ))}
-              <p className="pt-1 text-xs text-zinc-500">Community tidak perlu license; hanya Pro dan Enterprise yang diterbitkan dari portal.</p>
+              <p className="pt-1 text-xs text-zinc-500">Community does not require a license; only Pro and Enterprise are issued from the portal.</p>
             </div>
             <div>
               <label className="block text-xs text-zinc-400 uppercase tracking-widest mb-1.5">
-                Max users <span className="normal-case text-zinc-500">(opsional — kosongkan = unlimited)</span>
+                Max users <span className="normal-case text-zinc-500">(optional — leave empty for unlimited)</span>
               </label>
               <input
                 type="number"
@@ -303,12 +303,12 @@ export function LicensesContent() {
                 value={form.maxUsers}
                 onChange={(event) => setForm({ ...form, maxUsers: event.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none ring-accent/40 focus:border-accent focus:ring-4"
-                placeholder="Contoh: 10 (kosong = unlimited)"
+                placeholder="Example: 10 (empty = unlimited)"
               />
             </div>
             <div>
               <label className="block text-xs text-zinc-400 uppercase tracking-widest mb-1.5">
-                Expires at <span className="normal-case text-zinc-500">(opsional — kosongkan = tidak ada expiry)</span>
+                Expires at <span className="normal-case text-zinc-500">(optional — leave empty for no expiry)</span>
               </label>
               <input
                 type="date"
@@ -326,7 +326,7 @@ export function LicensesContent() {
           </div>
           {generatedKey ? (
             <div className="mt-5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-100">
-              <p className="font-semibold">License key baru</p>
+              <p className="font-semibold">New license key</p>
               <textarea readOnly value={generatedKey} className="mt-3 h-28 w-full rounded-lg border border-border bg-background p-3 text-xs text-zinc-100" />
             </div>
           ) : null}
@@ -334,7 +334,7 @@ export function LicensesContent() {
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <h2 className="text-xl font-semibold">Daftar license</h2>
+            <h2 className="text-xl font-semibold">License list</h2>
             <div className="flex gap-2">
               <select value={status} onChange={(event) => setStatus(event.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
                 <option value="">All status</option>
@@ -373,9 +373,9 @@ export function LicensesContent() {
               </thead>
               <tbody className="divide-y divide-border">
                 {loading ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">Memuat license...</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">Loading licenses...</td></tr>
                 ) : licenses.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">Belum ada license.</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-8 text-center text-zinc-400">No licenses yet.</td></tr>
                 ) : licenses.map((license) => (
                   <tr key={license.id} className="bg-card/60">
                     <td className="px-4 py-4">
@@ -411,7 +411,7 @@ export function LicensesContent() {
                       )}
                     </td>
                     <td className="px-4 py-4 text-zinc-400">
-                      {license.expiresAt ? new Date(license.expiresAt).toLocaleDateString("id-ID") : "Never"}
+                      {license.expiresAt ? new Date(license.expiresAt).toLocaleDateString("en-US") : "Never"}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex justify-end gap-2">

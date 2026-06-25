@@ -57,7 +57,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function formatDate(value: Date | null) {
   if (!value) return "—";
-  return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
 export function LicenseDetailContent({
@@ -83,7 +83,7 @@ export function LicenseDetailContent({
   }
 
   async function revoke() {
-    if (!confirm("Revoke license ini? Tindakan tidak dapat dibatalkan.")) return;
+    if (!confirm("Revoke this license? This action cannot be undone.")) return;
     setRevoking(true);
     setError(null);
 
@@ -95,7 +95,7 @@ export function LicenseDetailContent({
     });
 
     if (!response.ok) {
-      setError("Gagal revoke license.");
+      setError("Failed to revoke license.");
       setRevoking(false);
       return;
     }
@@ -114,7 +114,7 @@ export function LicenseDetailContent({
     });
 
     if (!response.ok) {
-      setError("Gagal enqueue resend email.");
+      setError("Failed to enqueue email resend.");
       setResending(false);
       return;
     }
@@ -235,7 +235,7 @@ export function LicenseDetailContent({
         <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
           <h2 className="text-lg font-semibold mb-4">Audit trail</h2>
           {auditEntries.length === 0 ? (
-            <p className="text-sm text-zinc-400">Belum ada audit entry.</p>
+            <p className="text-sm text-zinc-400">No audit entries yet.</p>
           ) : (
             <div className="space-y-3">
               {auditEntries.map((entry) => (

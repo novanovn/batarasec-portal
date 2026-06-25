@@ -190,11 +190,11 @@
 - **Main task**: Central Knowledge Base
 - **Subtask**: KB-01
 - **Owner**: Yudhistira
-- **Status**: done
+- **Status**: removed
 - **Priority**: P1
 - **Est**: ~2 jam
 - **Depends on**: AUTH-03, FND-03
-- **Worked**: 2026-05-27 — implemented `GET /api/kb/lookup?cveId=...` with license bearer auth, Zod CVE validation, Valkey 1-hour cache, and safe found/not-found DB response; `pnpm typecheck`, `pnpm build`, Docker staging rebuild, and `pnpm smoke:phase1` passed.
+- **Worked**: 2026-06-25 — Completely removed all KB lookup API endpoints, route handlers, and caches.
 - **Scope**: Implement `GET /api/kb/lookup?cveId=...` with license bearer auth, Zod query validation, Valkey cache, and DB lookup.
 - **Done when**: A valid license can lookup a CVE and receive `{ found, entry? }`; invalid license gets 401.
 
@@ -202,11 +202,11 @@
 - **Main task**: Central Knowledge Base
 - **Subtask**: KB-02
 - **Owner**: Yudhistira + Bima
-- **Status**: done
+- **Status**: removed
 - **Priority**: P1
 - **Est**: ~4 jam
 - **Depends on**: AUTH-03, FND-03
-- **Worked**: 2026-05-27 — implemented `POST /api/kb/contribute` with license bearer auth, Zod validation, basic email/IP/URL redaction, analysis hash duplicate detection, contribution insert, KB entry insert/update counters, and lookup cache invalidation; `pnpm typecheck`, `pnpm build`, Docker staging rebuild, and `pnpm smoke:phase1` passed.
+- **Worked**: 2026-06-25 — Completely removed the contribution API and its database integration.
 - **Scope**: Implement `POST /api/kb/contribute` with license auth, Zod validation, data scrubbing, analysis hash duplicate detection, contribution insert, and KB entry upsert/update counters.
 - **Done when**: Valid sanitized contributions are accepted once, duplicates are ignored safely, and customer/internal data is not stored.
 
@@ -214,11 +214,11 @@
 - **Main task**: Central Knowledge Base
 - **Subtask**: KB-03
 - **Owner**: Yudhistira
-- **Status**: done
+- **Status**: removed
 - **Priority**: P2
 - **Est**: ~1 jam
 - **Depends on**: KB-01
-- **Worked**: 2026-05-27 — implemented `GET /api/kb/stats` with license bearer auth, total entry/contribution counts, severity distribution, recent entries, 15-minute Valkey cache, and stats cache invalidation on contribution; `pnpm typecheck`, `pnpm build`, Docker staging rebuild, and `pnpm smoke:phase1` passed.
+- **Worked**: 2026-06-25 — Completely removed the stats API endpoint and its cache logic.
 - **Scope**: Implement `GET /api/kb/stats` for licensed platform clients and admin dashboard use.
 - **Done when**: Endpoint returns total entries, severity distribution, and recent entries.
 
@@ -226,10 +226,10 @@
 - **Main task**: Central Knowledge Base
 - **Subtask**: KB-04
 - **Owner**: Arjuna + Yudhistira
-- **Status**: done
+- **Status**: removed
 - **Priority**: P2
 - **Est**: ~4 jam
-- **Worked**: 2026-05-27 — added admin KB curation APIs for list/detail/update with search, severity, curated filters, cache invalidation, and audit logs; replaced `/kb` placeholder with search/filter list, entry editor, mitigation/package line editors, confidence/source/priority controls, and curated-by-team toggle; `pnpm typecheck`, `pnpm build`, Docker staging rebuild, `pnpm smoke:phase1`, and `pnpm smoke:ui` passed.
+- **Worked**: 2026-06-25 — Deleted the `/kb` page and the KB curation admin interfaces entirely.
 - **Scope**: Add admin KB page and APIs to search by CVE, view entry detail, edit summary/impact/mitigation/confidence/source, and mark curated by team.
 - **Done when**: Internal admins can manually curate KB entries and all changes are audited.
 
@@ -425,13 +425,13 @@
 - **Subtask**: PROD-06
 - **Owner**: Yudhistira + Karna
 - **Status**: done
-- **Worked**: 2026-05-28 — `PORTAL_KB_URL=https://portal.batarasec.com` dan `PORTAL_LICENSE_KEY` dikonfigurasi di platform env. Realtime license validation dan KB lookup smoke test dari platform ke portal production berhasil.
+- **Worked**: 2026-06-25 — Realtime license validation verified from platform to portal. KB lookup smoke test and references removed entirely under Opsi B.
 - **Priority**: P1
 - **Est**: ~1 jam
 - **Depends on**: PROD-03, PROD-05
-- **Scope**: Set `PORTAL_KB_URL=https://portal.batarasec.com` dan `PORTAL_LICENSE_KEY=<key>` di platform env. Trigger `GET /api/kb/lookup` dari platform ke portal production. Verify respons valid, no timeout, audit log tercatat di portal.
-- **Done when**: Platform berhasil call portal KB lookup via HTTPS dengan license bearer auth; response `{ found, entry }` diterima dalam < 3 detik; audit log ada di portal.
-
+- **Scope**: Set `PORTAL_LICENSE_KEY=<key>` di platform env. Trigger license validation dari platform ke portal production. Verify respons valid, no timeout, audit log tercatat di portal.
+- **Done when**: Platform berhasil call portal license validation via HTTPS; response valid diterima dalam < 3 detik; audit log ada di portal.
+ 
 ### [DOCS] Endpoint contract license validation + KB untuk platform integrators
 - **Main task**: Production Readiness & Platform Integration
 - **Subtask**: PROD-07
@@ -442,26 +442,28 @@
 - **Est**: ~1 jam
 - **Scope**: Tambahkan section `## Platform Integration Contract` di `design.md` yang mendokumentasikan endpoint contract lengkap: license validate, KB lookup, KB contribute, KB stats — request/response shape, auth header, error codes, rate limits, timeout expectation, dan istilah `batarasec-hub` sebagai nama konsep lama yang kini diimplementasikan sebagai `batarasec-portal`.
 - **Done when**: Platform developer bisa configure integrasi tanpa perlu membaca source code portal.
-
+ 
 ---
-
+ 
 ## Epic > 8 jam (multi-session)
-
+ 
 ### [PHASE2] BataraSec platform KB local cache integration
 - **Main task**: Epic > 8 jam (multi-session)
 - **Subtask**: EPIC-01
 - **Owner**: Yudhistira + Arjuna
-- **Status**: backlog
+- **Status**: removed
+- **Worked**: 2026-06-25 — Cancelled and removed. No KB caching integration will be implemented.
 - **Priority**: P2
 - **Est**: ~8 jam
 - **Scope**: Main BataraSec platform caches central KB responses locally and uses portal lookup as optional upstream.
 - **Done when**: Platform can use portal KB without blocking normal self-hosted operation.
-
+ 
 ### [PHASE3] Platform-to-portal central KB contribution integration
 - **Main task**: Epic > 8 jam (multi-session)
 - **Subtask**: EPIC-02
 - **Owner**: Yudhistira + Bima
-- **Status**: backlog
+- **Status**: removed
+- **Worked**: 2026-06-25 — Cancelled and removed. No KB contribution integration will be implemented.
 - **Priority**: P2
 - **Est**: ~8 jam
 - **Scope**: Main platform contributes sanitized AI analysis to portal central KB when customer opts in.

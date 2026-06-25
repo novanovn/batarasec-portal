@@ -25,7 +25,7 @@ async function main() {
     licenseId,
     customerId,
     tier: "pro_demo",
-    features: ["kb.lookup"],
+    features: [],
     maxUsers: 3,
   });
 
@@ -36,7 +36,7 @@ async function main() {
     tier: "pro_demo",
     status: "active",
     maxUsers: 3,
-    features: ["kb.lookup"],
+    features: [],
   });
 
   await sendLicenseEmail({

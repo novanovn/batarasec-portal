@@ -7,7 +7,7 @@ import { createId } from "@/lib/ids";
 const baseUrl = process.env.PORTAL_SMOKE_URL || "http://localhost:8080";
 const adminEmail = `ui-${Date.now()}@batarasec.test`;
 const adminPassword = `Ui-${Date.now()}-Password`;
-const pages = ["/", "/customers", "/licenses", "/kb", "/audit", "/settings"];
+const pages = ["/", "/customers", "/licenses", "/audit", "/settings"];
 
 function assertStatus(label: string, response: Response, expected: number | number[]) {
   const expectedValues = Array.isArray(expected) ? expected : [expected];

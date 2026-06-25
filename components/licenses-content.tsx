@@ -74,7 +74,7 @@ const LICENSE_PLANS = [
     tier: "enterprise",
     durationMonths: 12,
     maxUsers: "",
-    features: ["kb.lookup", "kb.contribute"],
+    features: [],
   },
   {
     value: "pro",
@@ -82,7 +82,7 @@ const LICENSE_PLANS = [
     tier: "pro",
     durationMonths: 12,
     maxUsers: "50",
-    features: ["kb.lookup", "kb.contribute"],
+    features: [],
   },
   {
     value: "enterprise_demo",
@@ -90,7 +90,7 @@ const LICENSE_PLANS = [
     tier: "enterprise_demo",
     durationMonths: 1,
     maxUsers: "",
-    features: ["kb.lookup", "kb.contribute"],
+    features: [],
   },
   {
     value: "pro_demo",
@@ -98,7 +98,7 @@ const LICENSE_PLANS = [
     tier: "pro_demo",
     durationMonths: 1,
     maxUsers: "10",
-    features: ["kb.lookup", "kb.contribute"],
+    features: [],
   },
 ];
 

@@ -1,13 +1,12 @@
 import { and, count, desc, eq, gt, inArray, lte } from "drizzle-orm";
 import { db } from "@/db";
-import { kbContributions, kbEntries, portalAuditLog, portalCustomers, portalLicenses } from "@/db/schema";
+import { portalAuditLog, portalCustomers, portalLicenses } from "@/db/schema";
 import { requireAdmin } from "@/lib/server-auth";
 import {
   Users,
   ShieldCheck,
   FileKey,
   Clock,
-  BookOpen,
   Activity,
 } from "lucide-react";
 
@@ -31,8 +30,6 @@ export async function DashboardContent() {
     [activeLicenses],
     [issuedLicenses],
     [expiringLicenses],
-    [kbEntryTotal],
-    [kbContributionTotal],
     recentAudit,
   ] = await Promise.all([
     db.select({ value: count() }).from(portalCustomers).where(eq(portalCustomers.status, "active")),
@@ -48,8 +45,6 @@ export async function DashboardContent() {
           lte(portalLicenses.expiresAt, expiringUntil),
         ),
       ),
-    db.select({ value: count() }).from(kbEntries),
-    db.select({ value: count() }).from(kbContributions),
     db
       .select({
         id: portalAuditLog.id,
@@ -95,14 +90,6 @@ export async function DashboardContent() {
       icon: Clock,
       bgClass: "bg-orange-500/10 text-orange-400 border-orange-500/20",
       hoverClass: "hover:border-orange-500/30 hover:shadow-[0_0_20px_rgba(249,115,22,0.06)]",
-    },
-    {
-      label: "KB entries",
-      value: kbEntryTotal?.value ?? 0,
-      helper: `${kbContributionTotal?.value ?? 0} contributions received`,
-      icon: BookOpen,
-      bgClass: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-      hoverClass: "hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.06)]",
     },
   ];
 

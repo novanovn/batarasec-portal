@@ -7,7 +7,6 @@ import { auditRoute } from "./routes/audit";
 import { authRoute } from "./routes/auth";
 import { customersRoute } from "./routes/customers";
 import { healthRoute } from "./routes/health";
-import { kbRoute } from "./routes/kb";
 import { licensesRoute } from "./routes/licenses";
 import { settingsRoute } from "./routes/settings";
 
@@ -28,7 +27,6 @@ app.route("/", healthRoute);
 app.route("/audit", auditRoute);
 app.route("/auth", authRoute);
 app.route("/customers", customersRoute);
-app.route("/kb", kbRoute);
 app.route("/licenses", licensesRoute);
 app.route("/settings", settingsRoute);
 

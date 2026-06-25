@@ -73,51 +73,6 @@ export const portalLicenses = pgTable(
   }),
 );
 
-export const kbEntries = pgTable(
-  "kb_entries",
-  {
-    id: text("id").primaryKey(),
-    cveId: text("cve_id").notNull(),
-    severity: text("severity").notNull(),
-    riskSummary: text("risk_summary").notNull(),
-    businessImpact: text("business_impact"),
-    mitigationSteps: jsonb("mitigation_steps").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
-    affectedPackages: jsonb("affected_packages").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
-    priority: text("priority"),
-    source: text("source").notNull(),
-    modelUsed: text("model_used"),
-    confidence: text("confidence").notNull().default("medium"),
-    version: integer("version").notNull().default(1),
-    reportCount: integer("report_count").notNull().default(0),
-    curatedByTeam: boolean("curated_by_team").notNull().default(false),
-    contributionCount: integer("contribution_count").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => ({
-    cveIdx: uniqueIndex("kb_entries_cve_idx").on(table.cveId),
-    severityIdx: index("kb_entries_severity_idx").on(table.severity),
-  }),
-);
-
-export const kbContributions = pgTable(
-  "kb_contributions",
-  {
-    id: text("id").primaryKey(),
-    kbEntryId: text("kb_entry_id").references(() => kbEntries.id, { onDelete: "set null" }),
-    licenseId: text("license_id").references(() => portalLicenses.id, { onDelete: "set null" }),
-    cveId: text("cve_id").notNull(),
-    analysisHash: text("analysis_hash").notNull(),
-    accepted: boolean("accepted").notNull().default(false),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => ({
-    analysisHashIdx: uniqueIndex("kb_contributions_analysis_hash_idx").on(table.analysisHash),
-    cveIdx: index("kb_contributions_cve_idx").on(table.cveId),
-    licenseIdx: index("kb_contributions_license_idx").on(table.licenseId),
-  }),
-);
-
 export const portalAuditLog = pgTable(
   "portal_audit_log",
   {
@@ -141,25 +96,10 @@ export const portalCustomersRelations = relations(portalCustomers, ({ many }) =>
   licenses: many(portalLicenses),
 }));
 
-export const portalLicensesRelations = relations(portalLicenses, ({ one, many }) => ({
+export const portalLicensesRelations = relations(portalLicenses, ({ one }) => ({
   customer: one(portalCustomers, {
     fields: [portalLicenses.customerId],
     references: [portalCustomers.id],
   }),
-  contributions: many(kbContributions),
 }));
 
-export const kbEntriesRelations = relations(kbEntries, ({ many }) => ({
-  contributions: many(kbContributions),
-}));
-
-export const kbContributionsRelations = relations(kbContributions, ({ one }) => ({
-  kbEntry: one(kbEntries, {
-    fields: [kbContributions.kbEntryId],
-    references: [kbEntries.id],
-  }),
-  license: one(portalLicenses, {
-    fields: [kbContributions.licenseId],
-    references: [portalLicenses.id],
-  }),
-}));

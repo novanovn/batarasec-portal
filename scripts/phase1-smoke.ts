@@ -90,7 +90,7 @@ async function main() {
     body: JSON.stringify({
       customerId,
       tier: "pro_demo",
-      features: ["kb.lookup", "kb.contribute"],
+      features: [],
       maxUsers: 10,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     }),
@@ -107,52 +107,6 @@ async function main() {
   });
   assertStatus("validate license", validateLicense, 200);
 
-  const contribute = await app.request("/api/kb/contribute", {
-    method: "POST",
-    headers: { authorization: `Bearer ${licenseKey}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      cveId: `CVE-2099-${Date.now().toString().slice(-4)}`,
-      severity: "high",
-      riskSummary: "Smoke validation risk summary",
-      businessImpact: "Smoke validation business impact",
-      mitigationSteps: ["Apply vendor patch"],
-      affectedPackages: ["smoke-package"],
-      priority: "high",
-      confidence: "medium",
-    }),
-  });
-  assertStatus("kb contribute", contribute, 201);
-  const contributePayload = await json<ApiResponse<{ entry: { id: string; cveId: string } }>>(contribute);
-  const kbEntryId = contributePayload.data.entry.id;
-  const cveId = contributePayload.data.entry.cveId;
-
-  const lookup = await app.request(`/api/kb/lookup?cveId=${cveId}`, {
-    headers: { authorization: `Bearer ${licenseKey}` },
-  });
-  assertStatus("kb lookup", lookup, 200);
-
-  const stats = await app.request("/api/kb/stats", {
-    headers: { authorization: `Bearer ${licenseKey}` },
-  });
-  assertStatus("kb stats", stats, 200);
-
-  const curate = await app.request(`/api/kb/admin/entries/${kbEntryId}`, {
-    method: "PATCH",
-    headers: { "content-type": "application/json", cookie },
-    body: JSON.stringify({
-      severity: "critical",
-      riskSummary: "Smoke curated risk summary",
-      businessImpact: "Smoke curated business impact",
-      mitigationSteps: ["Patch immediately"],
-      affectedPackages: ["smoke-package"],
-      priority: "critical",
-      source: "manual_curation",
-      modelUsed: null,
-      confidence: "high",
-      curatedByTeam: true,
-    }),
-  });
-  assertStatus("kb curate", curate, 200);
 
   const audit = await app.request("/api/audit?pageSize=5", { headers: { cookie } });
   assertStatus("audit list", audit, 200);

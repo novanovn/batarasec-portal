@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
-  BookOpen,
   Gauge,
   KeyRound,
   ScrollText,
@@ -19,7 +18,6 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: Gauge },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/licenses", label: "Licenses", icon: KeyRound },
-  { href: "/kb", label: "Knowledge Base", icon: BookOpen },
   { href: "/audit", label: "Audit Log", icon: ScrollText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

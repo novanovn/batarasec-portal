@@ -2,16 +2,14 @@
 
 ## Project Context
 
-BataraSec Portal is a separate repository from the main BataraSec platform. It is an internal tool for BataraSec operators to manage customer licenses and host the Central Knowledge Base (KB) API.
+BataraSec Portal is a separate repository from the main BataraSec platform. It is an internal tool for BataraSec operators to manage customer licenses.
 
 Repository: `github.com/novanovn/batarasec-portal`
 
 Roadmap position:
-- Phase 1 — Portal license management + KB endpoints — current repo and current phase
-- Phase 2 — KB local cache in the main BataraSec platform
-- Phase 3 — Central KB integration between platform and portal
-- Phase 4 — CVE crawler in portal worker
-- Phase 5 — Risk Score with EPSS + CISA KEV
+- Phase 1 — Portal license management — current repo and current phase
+- Phase 4 — CVE crawler in portal worker (pending approval)
+- Phase 5 — Risk Score with EPSS + CISA KEV (pending approval)
 
 This repo is not the main BataraSec platform monorepo. Do not copy platform architecture by default; follow this portal architecture unless the user explicitly changes it.
 
@@ -44,7 +42,6 @@ batarasec-portal/
 │       ├── page.tsx
 │       ├── customers/
 │       ├── licenses/
-│       ├── kb/
 │       ├── audit/
 │       └── settings/
 ├── hono/
@@ -53,7 +50,6 @@ batarasec-portal/
 │       ├── auth.ts
 │       ├── customers.ts
 │       ├── licenses.ts
-│       ├── kb.ts
 │       └── dashboard.ts
 ├── db/
 │   ├── schema.ts
@@ -90,7 +86,7 @@ Mandatory rules:
 - Store revoked token hashes or session identifiers in Valkey for logout/invalidation.
 - License validation must verify JWT signature and database status.
 - Do not log secrets, license keys, passwords, raw tokens, SMTP credentials, or encryption keys.
-- Audit all sensitive actions: login, failed login, logout, customer create/update/delete, license generate/revoke/resend, KB manual curation, settings changes.
+- Audit all sensitive actions: login, failed login, logout, customer create/update/delete, license generate/revoke/resend, settings changes.
 - Keep destructive actions soft-delete or reversible unless the user explicitly asks otherwise.
 
 ## API Auth Modes
@@ -102,7 +98,7 @@ The portal has two auth modes:
    - Cookie-based JWT access/refresh flow.
 
 2. License bearer auth
-   - Used by deployed BataraSec customer instances calling license and KB endpoints.
+   - Used by deployed BataraSec customer instances calling license validation.
    - Header: `Authorization: Bearer <licenseKey>`.
    - Must verify license signature, expiry, revocation status, customer/license status, and rate limit by license.
 
@@ -110,8 +106,6 @@ The portal has two auth modes:
 
 - `POST /api/auth/login`: 5 requests per 15 minutes per IP.
 - `POST /api/licenses/validate`: 100 requests per hour per license, cache valid response in Valkey for 1 hour.
-- `GET /api/kb/lookup`: 1000 requests per day per license.
-- `POST /api/kb/contribute`: 100 requests per day per license.
 - General `GET /api/*`: 100 requests per 15 minutes per IP.
 
 ## Product Scope
@@ -123,9 +117,7 @@ Phase 1 must provide:
 - License JWT signing with `LICENSE_SIGNING_SECRET`.
 - SMTP email delivery through queued BullMQ jobs.
 - Audit log list/filter.
-- KB lookup endpoint authenticated by license.
-- KB contribution endpoint authenticated by license, with customer-data scrubbing and duplicate detection via analysis hash.
-- Dashboard metrics: customers, active licenses, expiring licenses, KB stats, recent audit activity.
+- Dashboard metrics: customers, active licenses, expiring licenses, recent audit activity.
 
 ## UI Guidelines
 
@@ -147,7 +139,6 @@ Primary pages:
 - `/customers/[id]`
 - `/licenses`
 - `/licenses/[id]`
-- `/kb`
 - `/audit`
 - `/settings`
 
@@ -155,7 +146,6 @@ Sidebar navigation:
 - Dashboard
 - Customers
 - Licenses
-- Knowledge Base
 - Audit Log
 - Settings
 
@@ -165,7 +155,7 @@ Sidebar navigation:
 - Do not build all roadmap phases at once.
 - Start with foundation: project setup, schema, migrations, seed admin, auth, audit log, license generate/validate.
 - Add UI after the protected API foundations are in place.
-- Keep central KB crawler, EPSS, CISA KEV, and risk scoring out of Phase 1 unless the user explicitly requests them.
+- Keep CVE crawler, EPSS, CISA KEV, and risk scoring out of Phase 1 unless the user explicitly requests them.
 - Before reporting completion, run `pnpm typecheck` when package scripts exist.
 - For UI changes, run the app and manually verify the browser flow when possible.
 

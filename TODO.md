@@ -1,6 +1,6 @@
 # BataraSec Portal — Project TODO
 > Managed by: **Bisma** (PM Agent)
-> Last updated: 2026-06-25 — Translation and design synchronization sweep across all portal components complete (`pnpm typecheck` PASS). Ready for deployment.
+> Last updated: 2026-06-25 — Translation sweep + premium collapsible sidebar integration complete (`pnpm typecheck` PASS). Deployed successfully.
 > Sorted by: estimated time (shortest first)
 
 ---

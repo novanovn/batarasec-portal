@@ -1,12 +1,12 @@
 # BataraSec Portal Worklog
 
 ## Active Work
-- Task group: UI polish and localization — translation and style sync sweep completed, ready for production rollout
+- Task group: UI polish and localization — translation sweep + premium collapsible sidebar integration complete and deployed
 - Branch: `main`
-- Last worked: 2026-06-25 — Translated all remaining portal UI components from Indonesian to English and synced date format locales to `en-US`. Ran typecheck successfully.
+- Last worked: 2026-06-25 — Translated all remaining portal UI components from Indonesian to English. Resolved the settings redirect loop bug. Upgraded the portal sidebar to a premium collapsible component with animations and hover tooltips. Deployed successfully.
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
 - Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
-- Next: commit and push changes, then perform VPS deploy via SSH using user ubuntu.
+- Next: monitor portal production logs and verify the interface.
 
 ## Current State
 - 2026-05-26: Created initial portal documentation baseline: `CLAUDE.md`, `TODO.md`, `design.md`, and `WORKLOG.md`.
@@ -78,7 +78,7 @@
   - Platform behavior: startup sync kalau `PORTAL_LICENSE_SYNC=true`, KB lookup enrich AI context dari portal, fully functional kalau portal down. License lokal HMAC tetap independent.
 - 2026-05-28: LIC-07 selesai — Migration `0001_bouncy_amphibian.sql` dibuat (ALTER DEFAULT + backfill UPDATE). Schema default diubah ke `issued`. Middleware izinkan `issued`+`active`, block `revoked` dengan pesan spesifik. `POST /api/licenses/validate` auto-upgrade `issued → active` + audit log `license_activated` saat first validation. Generate license default `issued`. Revoke allow dari `issued` maupun `active`. Dashboard tambah card `Issued licenses` (5 cards, xl:grid-cols-5). UI badge: amber `Issued`, hijau `Active`, merah `Revoked`. Filter dropdown tambah `Issued`. `pnpm typecheck` dan `pnpm build` PASS.
 - 2026-06-20: QW-08 selesai — Login page enterprise polish di `/login`: split brand/form layout, interactive glow, feature grid, dot pattern, input icons, password show/hide, loading spinner, autofocus, safe error alert. Commit terbaru local `148f439`.
-- 2026-06-25: UI translation sweep — translated all remaining portal pages (dashboard, customers, licenses, license-detail, audit, kb, settings, logout button) from Indonesian to English. Standardized date/time locale formatting to `en-US`. Synced visual design cues. `pnpm typecheck` PASS.
+- 2026-06-25: UI translation sweep & sidebar upgrade — translated all remaining portal pages (dashboard, customers, licenses, license-detail, audit, kb, settings, logout button) to English. Resolved settings redirect loop using request headers in middleware and layout. Upgraded portal sidebar to a premium collapsible layout with animations, active route highlighting, and hover tooltips. `pnpm typecheck` PASS. Deployed to production VPS successfully.
 
 
 ## Product Decisions

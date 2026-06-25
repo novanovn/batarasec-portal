@@ -3,6 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  KeyRound,
+  ShieldAlert,
+  ClipboardCheck,
+  Copy,
+  Loader2,
+  CheckCircle2,
+  Mail,
+  Calendar,
+  User,
+  Server,
+  History,
+  Send,
+} from "lucide-react";
 
 type Customer = {
   id: string;
@@ -41,18 +56,37 @@ type AuditEntry = {
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "active") {
-    return <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">Active</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        Active
+      </span>
+    );
   }
 
   if (status === "issued") {
-    return <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs text-amber-300">Issued</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+        Issued
+      </span>
+    );
   }
 
   if (status === "revoked") {
-    return <span className="rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs text-red-300">Revoked</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+        Revoked
+      </span>
+    );
   }
 
-  return <span className="rounded-full border border-border bg-background px-3 py-1 text-xs capitalize text-zinc-200">{status}</span>;
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-zinc-400">
+      {status}
+    </span>
+  );
 }
 
 function formatDate(value: Date | null) {
@@ -124,18 +158,34 @@ export function LicenseDetailContent({
 
   return (
     <section className="space-y-6">
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
-        <div className="flex items-center gap-3 text-sm text-zinc-400">
-          <Link href="/licenses" className="transition hover:text-white">Licenses</Link>
-          <span>/</span>
-          <span className="text-white">Detail</span>
-        </div>
-        <div className="mt-4 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight font-mono">{license.id}</h1>
-            <div className="mt-3 flex items-center gap-3">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-accent/5 p-6 shadow-2xl">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808004_1px,transparent_1px),linear-gradient(to_bottom,#80808004_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+          <div className="space-y-3">
+            <Link
+              href="/licenses"
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-500 transition hover:text-white group"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" />
+              <span>Back to Licenses</span>
+            </Link>
+            
+            <div className="flex items-center gap-3 pt-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <KeyRound className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">License Detail</p>
+                <h1 className="text-xl font-mono font-bold text-white mt-0.5 select-all">{license.id}</h1>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 pt-2">
               <StatusBadge status={license.status} />
-              <span className="text-sm capitalize text-zinc-400">{license.tier}</span>
+              <span className="rounded bg-zinc-800/80 border border-border/50 px-2 py-0.5 text-xs capitalize text-zinc-300 font-medium">
+                {license.tier.replace("_", " ")}
+              </span>
             </div>
           </div>
           <div className="flex gap-2">
@@ -143,17 +193,19 @@ export function LicenseDetailContent({
               type="button"
               onClick={resend}
               disabled={resending}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background/40 px-4 py-2.5 text-xs font-semibold text-zinc-300 transition hover:border-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             >
-              {resending ? "Sending..." : "Resend email"}
+              {resending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+              <span>{resending ? "Sending..." : "Resend email"}</span>
             </button>
             <button
               type="button"
               onClick={revoke}
               disabled={revoking || license.status === "revoked"}
-              className="rounded-lg border border-red-500/40 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-400 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
-              {revoking ? "Revoking..." : "Revoke"}
+              {revoking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldAlert className="h-3.5 w-3.5" />}
+              <span>{revoking ? "Revoking..." : "Revoke"}</span>
             </button>
           </div>
         </div>
@@ -165,87 +217,126 @@ export function LicenseDetailContent({
 
       <div className="grid gap-6 xl:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
-          <h2 className="text-lg font-semibold">License key</h2>
+          <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+            <KeyRound className="h-4.5 w-4.5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">License key</h2>
+          </div>
           <textarea
             readOnly
             value={license.licenseKey}
-            className="h-32 w-full rounded-lg border border-border bg-background p-3 font-mono text-xs text-zinc-100 resize-none"
+            className="h-32 w-full rounded-lg border border-border bg-black/40 p-3 font-mono text-xs text-zinc-200 resize-none focus:outline-none select-all"
           />
           <button
             type="button"
             onClick={copyKey}
-            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-zinc-200 transition hover:border-accent hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background/40 px-4 py-2 text-xs font-semibold text-zinc-300 transition hover:border-accent hover:text-white cursor-pointer"
           >
-            {copied ? "Copied!" : "Copy key"}
+            {copied ? (
+              <>
+                <ClipboardCheck className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5" />
+                <span>Copy key</span>
+              </>
+            )}
           </button>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-3">
-          <h2 className="text-lg font-semibold">Customer</h2>
-          {[
-            ["Name", customer.name],
-            ["Email", customer.email],
-            ["Company", customer.company ?? "—"],
-            ["Status", customer.status],
-          ].map(([label, value]) => (
-            <div key={label} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-background px-4 py-3 text-sm">
-              <span className="text-zinc-400">{label}</span>
-              <span className="font-medium text-zinc-100">{value}</span>
-            </div>
-          ))}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+            <User className="h-4.5 w-4.5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">Customer</h2>
+          </div>
+          <div className="space-y-3">
+            {[
+              ["Name", customer.name],
+              ["Email", customer.email],
+              ["Company", customer.company ?? "—"],
+              ["Status", customer.status],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-background/50 px-4 py-3 text-sm">
+                <span className="text-zinc-400 font-semibold tracking-wide">{label}</span>
+                {label === "Status" ? (
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                    value === "active" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"
+                  }`}>
+                    {value}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-white">{value}</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-3">
-          <h2 className="text-lg font-semibold">License info</h2>
-          {[
-            ["Tier", license.tier],
-            ["Max users", license.maxUsers?.toString() ?? "Unlimited"],
-            ["Features", license.features.join(", ") || "—"],
-            ["Issued at", formatDate(license.issuedAt)],
-            ["Expires at", license.expiresAt ? formatDate(license.expiresAt) : "Never"],
-            ["Email sent", formatDate(license.emailSentAt)],
-            ["Last validated", formatDate(license.lastValidatedAt)],
-            ["Last instance", license.lastInstanceId ?? "—"],
-          ].map(([label, value]) => (
-            <div key={label} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-background px-4 py-3 text-sm">
-              <span className="text-zinc-400">{label}</span>
-              <span className="font-medium text-zinc-100 text-right">{value}</span>
-            </div>
-          ))}
-          {license.status === "revoked" ? (
-            <>
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm">
-                <span className="text-zinc-400">Revoked at</span>
-                <span className="font-medium text-red-300">{formatDate(license.revokedAt)}</span>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+            <Server className="h-4.5 w-4.5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">License info</h2>
+          </div>
+          <div className="space-y-3">
+            {[
+              ["Tier", license.tier.replace("_", " ")],
+              ["Max users", license.maxUsers?.toString() ?? "Unlimited"],
+              ["Features", license.features.join(", ") || "—"],
+              ["Issued at", formatDate(license.issuedAt)],
+              ["Expires at", license.expiresAt ? formatDate(license.expiresAt) : "Never"],
+              ["Email sent", formatDate(license.emailSentAt)],
+              ["Last validated", formatDate(license.lastValidatedAt)],
+              ["Last instance", license.lastInstanceId ?? "—"],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between gap-4 rounded-xl border border-border bg-background/50 px-4 py-3 text-sm">
+                <span className="text-zinc-400 font-semibold tracking-wide">{label}</span>
+                <span className="font-semibold text-white text-right capitalize">{value}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm">
-                <span className="text-zinc-400">Revoked by</span>
-                <span className="font-medium text-red-300">{license.revokedBy ?? "—"}</span>
-              </div>
-              {license.revokeReason ? (
-                <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm">
-                  <p className="text-zinc-400 mb-1">Reason</p>
-                  <p className="text-red-200">{license.revokeReason}</p>
+            ))}
+            {license.status === "revoked" ? (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-3 mt-4 text-sm">
+                <p className="font-semibold text-red-400 flex items-center gap-1.5"><ShieldAlert className="h-4.5 w-4.5" /> Revocation details</p>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between border-b border-red-500/10 pb-2">
+                    <span className="text-zinc-400">Revoked at</span>
+                    <span className="font-medium text-red-300">{formatDate(license.revokedAt)}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-red-500/10 pb-2">
+                    <span className="text-zinc-400">Revoked by</span>
+                    <span className="font-medium text-red-300">{license.revokedBy ?? "—"}</span>
+                  </div>
+                  {license.revokeReason ? (
+                    <div className="pt-1">
+                      <p className="text-zinc-400 mb-1">Reason</p>
+                      <p className="text-red-200 bg-red-500/10 p-2.5 rounded border border-red-500/20 text-xs font-medium">{license.revokeReason}</p>
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </>
-          ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl">
-          <h2 className="text-lg font-semibold mb-4">Audit trail</h2>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+            <History className="h-4.5 w-4.5 text-accent" />
+            <h2 className="text-lg font-semibold text-white">Audit trail</h2>
+          </div>
           {auditEntries.length === 0 ? (
-            <p className="text-sm text-zinc-400">No audit entries yet.</p>
+            <div className="rounded-xl border border-border bg-background/20 px-4 py-8 text-center text-sm text-zinc-500">
+              No audit entries yet.
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
               {auditEntries.map((entry) => (
-                <div key={entry.id} className="rounded-xl border border-border bg-background p-4">
+                <div key={entry.id} className="rounded-xl border border-border bg-background/40 p-4 space-y-2 hover:border-accent/30 transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-white">{entry.action}</p>
-                      <p className="mt-1 text-xs text-zinc-400">{entry.actor}</p>
+                      <p className="mt-1 text-xs text-zinc-400 font-medium">{entry.actor}</p>
                     </div>
-                    <p className="shrink-0 text-xs text-zinc-500">{formatDate(entry.createdAt)}</p>
+                    <p className="shrink-0 text-[10px] font-mono text-zinc-500">{formatDate(entry.createdAt)}</p>
                   </div>
                 </div>
               ))}

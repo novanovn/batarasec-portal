@@ -107,7 +107,15 @@ const defaultPlan = LICENSE_PLANS[0];
 function addMonths(date: Date, months: number): string {
   const next = new Date(date);
   next.setMonth(next.getMonth() + months);
-  return next.toISOString().slice(0, 10);
+  
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = next.getFullYear();
+  const month = pad(next.getMonth() + 1);
+  const day = pad(next.getDate());
+  const hours = pad(next.getHours());
+  const minutes = pad(next.getMinutes());
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 const emptyForm = {
@@ -382,7 +390,7 @@ export function LicensesContent() {
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"><Calendar className="h-4 w-4" /></span>
                 <input
-                  type="date"
+                  type="datetime-local"
                   value={form.expiresAt}
                   onChange={(event) => setForm({ ...form, expiresAt: event.target.value })}
                   className="w-full rounded-lg border border-border bg-background/50 px-4 py-3 pl-10 text-sm text-white outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/15"

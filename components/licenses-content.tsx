@@ -128,6 +128,7 @@ export function LicensesContent() {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [revokingIds, setRevokingIds] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
 
@@ -211,21 +212,36 @@ export function LicensesContent() {
   }
 
   async function revokeLicense(license: License) {
+    if (revokingIds[license.id]) return;
     setError(null);
+    setRevokingIds((prev) => ({ ...prev, [license.id]: true }));
 
-    const response = await fetch(`/api/licenses/${license.id}/revoke`, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: "Revoked from portal UI" }),
-    });
+    try {
+      const response = await fetch(`/api/licenses/${license.id}/revoke`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Revoked from portal UI" }),
+      });
 
-    if (!response.ok) {
-      setError("Failed to revoke license.");
-      return;
+      if (!response.ok) {
+        let msg = "Failed to revoke license.";
+        try {
+          const payload = await response.json();
+          if (payload && payload.error && payload.error.message) {
+            msg = `${msg} (${payload.error.message})`;
+          }
+        } catch (_) {}
+        setError(msg);
+        return;
+      }
+
+      await loadData();
+    } catch (err) {
+      setError("Failed to revoke license due to connection error.");
+    } finally {
+      setRevokingIds((prev) => ({ ...prev, [license.id]: false }));
     }
-
-    await loadData();
   }
 
   async function resendLicense(license: License) {
@@ -531,12 +547,16 @@ export function LicensesContent() {
                         </button>
                         <button
                           type="button"
-                          disabled={license.status === "revoked"}
+                          disabled={license.status === "revoked" || revokingIds[license.id]}
                           onClick={() => revokeLicense(license)}
                           className="inline-flex items-center gap-1 rounded-lg border border-red-500/20 px-3 py-2 text-xs font-semibold text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                         >
-                          <ShieldAlert className="h-3.5 w-3.5" />
-                          Revoke
+                          {revokingIds[license.id] ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <ShieldAlert className="h-3.5 w-3.5" />
+                          )}
+                          {revokingIds[license.id] ? "Revoking..." : "Revoke"}
                         </button>
                       </div>
                     </td>

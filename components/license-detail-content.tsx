@@ -121,21 +121,33 @@ export function LicenseDetailContent({
     setRevoking(true);
     setError(null);
 
-    const response = await fetch(`/api/licenses/${license.id}/revoke`, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: "Revoked from portal UI" }),
-    });
+    try {
+      const response = await fetch(`/api/licenses/${license.id}/revoke`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Revoked from portal UI" }),
+      });
 
-    if (!response.ok) {
-      setError("Failed to revoke license.");
+      if (!response.ok) {
+        let msg = "Failed to revoke license.";
+        try {
+          const payload = await response.json();
+          if (payload && payload.error && payload.error.message) {
+            msg = `${msg} (${payload.error.message})`;
+          }
+        } catch (_) {}
+        setError(msg);
+        setRevoking(false);
+        return;
+      }
+
+      router.refresh();
+    } catch (err) {
+      setError("Failed to revoke license due to connection error.");
+    } finally {
       setRevoking(false);
-      return;
     }
-
-    router.refresh();
-    setRevoking(false);
   }
 
   async function resend() {

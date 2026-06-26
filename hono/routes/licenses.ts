@@ -105,6 +105,7 @@ function validationResponse(license: LicenseContext) {
     maxUsers: license.maxUsers,
     customerName: license.customerName,
     customerCompany: license.customerCompany,
+    customerEmail: license.customerEmail,
   };
 }
 

@@ -14,6 +14,7 @@ export type LicenseContext = {
   expiresAt: Date | null;
   customerName: string;
   customerCompany: string | null;
+  customerEmail: string;
 };
 
 type Env = {
@@ -57,6 +58,7 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
       customerStatus: portalCustomers.status,
       customerName: portalCustomers.name,
       customerCompany: portalCustomers.company,
+      customerEmail: portalCustomers.email,
     })
     .from(portalLicenses)
     .innerJoin(portalCustomers, eq(portalLicenses.customerId, portalCustomers.id))
@@ -79,7 +81,9 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
   }
 
   if (row.licenseStatus !== "issued" && row.licenseStatus !== "active") {
-    return c.json(errorResponse("FORBIDDEN", "License is not active"), 403);
+    if (!isValidateRoute || row.licenseStatus !== "expired") {
+      return c.json(errorResponse("FORBIDDEN", "License is not active"), 403);
+    }
   }
 
   if (row.customerStatus !== "active") {
@@ -101,6 +105,7 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
     expiresAt: row.expiresAt,
     customerName: row.customerName,
     customerCompany: row.customerCompany,
+    customerEmail: row.customerEmail,
   });
 
   await next();

@@ -54,7 +54,7 @@ export async function verifyLicenseToken(
   const { payload } = await jwtVerify(
     token,
     getLicenseSecret(),
-    options?.ignoreExpiration ? { currentDate: new Date(0) } : undefined
+    options?.ignoreExpiration ? { ignoreExpiration: true } : undefined
   );
 
   if (

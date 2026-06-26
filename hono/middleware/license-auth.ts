@@ -86,7 +86,10 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
   }
 
   if (row.expiresAt && row.expiresAt.getTime() <= Date.now()) {
-    return c.json(errorResponse("FORBIDDEN", "License is expired"), 403);
+    const isValidateRoute = c.req.path.endsWith("/validate");
+    if (!isValidateRoute) {
+      return c.json(errorResponse("FORBIDDEN", "License is expired"), 403);
+    }
   }
 
   c.set("license", {

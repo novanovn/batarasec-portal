@@ -95,8 +95,9 @@ function parseExpiresAt(value: string | null | undefined): Date | null {
 }
 
 function validationResponse(license: LicenseContext) {
+  const isExpired = license.expiresAt ? license.expiresAt.getTime() <= Date.now() : false;
   return {
-    valid: true,
+    valid: !isExpired,
     licenseId: license.licenseId,
     tier: license.tier,
     features: license.features,

@@ -162,3 +162,72 @@ export function createLicenseEmailWorker() {
     connection: bullMqConnection(),
   });
 }
+
+export async function sendLicenseExpiryEmail(input: {
+  customerEmail: string;
+  customerName: string;
+  tier: string;
+  expiresAt: Date;
+  warningType: "30d" | "7d" | "1d" | "0d";
+}) {
+  if (!smtpReady()) {
+    throw new Error("SMTP configuration is incomplete");
+  }
+
+  let intervalLabel = "";
+  if (input.warningType === "30d") intervalLabel = "30 hari";
+  else if (input.warningType === "7d") intervalLabel = "7 hari";
+  else if (input.warningType === "1d") intervalLabel = "1 hari";
+
+  let subject = "";
+  let text = "";
+
+  if (input.warningType === "0d") {
+    subject = `[BataraSec] Peringatan: Lisensi Enterprise Anda Telah Kedaluwarsa`;
+    text = [
+      `Halo ${input.customerName},`,
+      "",
+      `Lisensi BataraSec Enterprise Anda telah kedaluwarsa hari ini.`,
+      `Sistem sekarang memasuki masa tenggang (grace period) selama 1 bulan dengan fitur Enterprise tetap aktif namun dalam mode baca-saja (tidak bisa menambah/mengubah data).`,
+      "",
+      `Harap perbarui lisensi Anda segera untuk mengembalikan akses penuh.`,
+      "",
+      `Detail Lisensi:`,
+      `Tier: ${input.tier}`,
+      `Expires at: ${input.expiresAt.toISOString()}`,
+    ].join("\n");
+  } else {
+    subject = `[BataraSec] Peringatan: Lisensi Enterprise Anda Akan Berakhir Dalam ${intervalLabel}`;
+    text = [
+      `Halo ${input.customerName},`,
+      "",
+      `Lisensi BataraSec Enterprise Anda akan berakhir dalam ${intervalLabel}.`,
+      `Harap perbarui lisensi Anda segera untuk mencegah gangguan pada sistem Anda.`,
+      "",
+      `Detail Lisensi:`,
+      `Tier: ${input.tier}`,
+      `Expires at: ${input.expiresAt.toISOString()}`,
+    ].join("\n");
+  }
+
+  if (!smtpDryRun()) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: smtpPassword(),
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: input.customerEmail,
+      subject,
+      text,
+    });
+  } else {
+    console.log(`[DRY RUN] Expiry email sent to ${input.customerEmail}: ${subject}`);
+  }
+}

@@ -1,7 +1,10 @@
 import "dotenv/config";
 import { createLicenseEmailWorker } from "@/lib/license-email";
+import { runPortalExpirySchedulerWorker } from "@/lib/expiry-scheduler";
 
 const worker = createLicenseEmailWorker();
+
+runPortalExpirySchedulerWorker();
 
 worker.on("completed", (job) => {
   console.log(`license-email job completed: ${job.id}`);

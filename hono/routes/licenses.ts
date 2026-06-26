@@ -97,6 +97,7 @@ function parseExpiresAt(value: string | null | undefined): Date | null {
 function validationResponse(license: LicenseContext) {
   return {
     valid: true,
+    licenseId: license.licenseId,
     tier: license.tier,
     features: license.features,
     expiresAt: license.expiresAt?.toISOString() ?? null,

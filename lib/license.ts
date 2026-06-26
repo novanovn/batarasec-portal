@@ -1,4 +1,4 @@
-import { jwtVerify, SignJWT } from "jose";
+import { decodeJwt, jwtVerify, SignJWT } from "jose";
 
 export type LicenseTier = "pro" | "pro_demo" | "enterprise" | "enterprise_demo";
 
@@ -51,11 +51,17 @@ export async function verifyLicenseToken(
   token: string,
   options?: { ignoreExpiration?: boolean }
 ): Promise<VerifiedLicenseClaims> {
-  const { payload } = await jwtVerify(
-    token,
-    getLicenseSecret(),
-    options?.ignoreExpiration ? { ignoreExpiration: true } : undefined
-  );
+  let payload;
+  try {
+    const result = await jwtVerify(token, getLicenseSecret());
+    payload = result.payload;
+  } catch (err: any) {
+    if (options?.ignoreExpiration && err.code === "ERR_JWT_EXPIRED") {
+      payload = decodeJwt(token);
+    } else {
+      throw err;
+    }
+  }
 
   if (
     !payload.licenseId ||

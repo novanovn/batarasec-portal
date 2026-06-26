@@ -35,10 +35,11 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
     return c.json(errorResponse("UNAUTHORIZED", "Missing license bearer token"), 401);
   }
 
+  const isValidateRoute = c.req.path.endsWith("/validate");
   let claims;
 
   try {
-    claims = await verifyLicenseToken(token);
+    claims = await verifyLicenseToken(token, { ignoreExpiration: isValidateRoute });
   } catch {
     return c.json(errorResponse("UNAUTHORIZED", "Invalid license bearer token"), 401);
   }
@@ -86,7 +87,6 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
   }
 
   if (row.expiresAt && row.expiresAt.getTime() <= Date.now()) {
-    const isValidateRoute = c.req.path.endsWith("/validate");
     if (!isValidateRoute) {
       return c.json(errorResponse("FORBIDDEN", "License is expired"), 403);
     }

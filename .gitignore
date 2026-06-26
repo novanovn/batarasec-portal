@@ -23,3 +23,7 @@ pnpm-debug.log*
 
 # typescript
 tsconfig.tsbuildinfo
+
+# agent specific
+.claude/
+

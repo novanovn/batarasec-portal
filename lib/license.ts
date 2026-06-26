@@ -47,8 +47,15 @@ export async function signLicenseToken(
   return jwt.sign(getLicenseSecret());
 }
 
-export async function verifyLicenseToken(token: string): Promise<VerifiedLicenseClaims> {
-  const { payload } = await jwtVerify(token, getLicenseSecret());
+export async function verifyLicenseToken(
+  token: string,
+  options?: { ignoreExpiration?: boolean }
+): Promise<VerifiedLicenseClaims> {
+  const { payload } = await jwtVerify(
+    token,
+    getLicenseSecret(),
+    options?.ignoreExpiration ? { currentDate: new Date(0) } : undefined
+  );
 
   if (
     !payload.licenseId ||

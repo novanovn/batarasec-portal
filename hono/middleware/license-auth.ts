@@ -12,6 +12,8 @@ export type LicenseContext = {
   features: string[];
   maxUsers: number | null;
   expiresAt: Date | null;
+  customerName: string;
+  customerCompany: string | null;
 };
 
 type Env = {
@@ -52,6 +54,8 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
       expiresAt: portalLicenses.expiresAt,
       customerId: portalCustomers.id,
       customerStatus: portalCustomers.status,
+      customerName: portalCustomers.name,
+      customerCompany: portalCustomers.company,
     })
     .from(portalLicenses)
     .innerJoin(portalCustomers, eq(portalLicenses.customerId, portalCustomers.id))
@@ -92,6 +96,8 @@ export const licenseBearerAuth = createMiddleware<Env>(async (c, next) => {
     features: row.features,
     maxUsers: row.maxUsers,
     expiresAt: row.expiresAt,
+    customerName: row.customerName,
+    customerCompany: row.customerCompany,
   });
 
   await next();

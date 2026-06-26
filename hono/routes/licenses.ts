@@ -102,6 +102,8 @@ function validationResponse(license: LicenseContext) {
     features: license.features,
     expiresAt: license.expiresAt?.toISOString() ?? null,
     maxUsers: license.maxUsers,
+    customerName: license.customerName,
+    customerCompany: license.customerCompany,
   };
 }
 

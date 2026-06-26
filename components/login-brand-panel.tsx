@@ -82,7 +82,7 @@ export function LoginBrandPanel() {
 
       <div className="relative flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background">
-          <ShieldCheck className="h-6 w-6 text-accent" />
+          <img src="/batarseclogoupdate.png" alt="BataraSec Logo" className="h-6.5 w-6.5 object-contain" />
         </span>
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-zinc-500">BataraSec</p>

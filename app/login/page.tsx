@@ -19,7 +19,7 @@ export default async function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card">
-              <ShieldCheck className="h-5 w-5 text-accent" />
+              <img src="/batarseclogoupdate.png" alt="Logo" className="h-5.5 w-5.5 object-contain" />
             </span>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">BataraSec</p>

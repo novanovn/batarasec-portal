@@ -68,8 +68,8 @@ export function PortalSidebar() {
           mounted && isCollapsed ? "justify-center" : ""
         }`}
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent shadow-sm border border-accent/20">
-          <Shield className="h-5 w-5" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 shadow-sm border border-accent/20">
+          <img src="/batarseclogoupdate.png" alt="Logo" className="h-5.5 w-5.5 object-contain" />
         </div>
         {(!mounted || !isCollapsed) && (
           <div className="overflow-hidden whitespace-nowrap transition-opacity duration-300">

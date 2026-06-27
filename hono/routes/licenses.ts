@@ -421,4 +421,34 @@ export const licensesRoute = new Hono<Env>()
     });
 
     return c.json(successResponse(emailJob), 202);
+  })
+  .delete("/:id", adminAuth, async (c) => {
+    const params = idParamSchema.safeParse(c.req.param());
+
+    if (!params.success) {
+      return c.json(errorResponse("BAD_REQUEST", "Invalid license id"), 400);
+    }
+
+    const existing = await db.query.portalLicenses.findFirst({
+      where: eq(portalLicenses.id, params.data.id),
+    });
+
+    if (!existing) {
+      return c.json(errorResponse("NOT_FOUND", "License not found"), 404);
+    }
+
+    const admin = c.get("admin");
+
+    await db.delete(portalLicenses).where(eq(portalLicenses.id, existing.id));
+
+    await writeAuditLog({
+      actor: admin.email,
+      action: "license_delete",
+      target: existing.id,
+      metadata: { customerId: existing.customerId, tier: existing.tier },
+      ipAddress: getClientIp(c),
+      userAgent: getUserAgent(c),
+    });
+
+    return c.json(successResponse({ success: true }));
   });

@@ -17,6 +17,7 @@ import {
   Server,
   History,
   Send,
+  Trash2,
 } from "lucide-react";
 
 type Customer = {
@@ -107,6 +108,7 @@ export function LicenseDetailContent({
   const [copied, setCopied] = useState(false);
   const [revoking, setRevoking] = useState(false);
   const [resending, setResending] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function copyKey() {
@@ -168,6 +170,38 @@ export function LicenseDetailContent({
     setResending(false);
   }
 
+  async function deleteLicense() {
+    if (!confirm("Are you sure you want to permanently delete this license? This action cannot be undone.")) return;
+    setDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/licenses/${license.id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        let msg = "Failed to delete license.";
+        try {
+          const payload = await response.json();
+          if (payload && payload.error && payload.error.message) {
+            msg = `${msg} (${payload.error.message})`;
+          }
+        } catch (_) {}
+        setError(msg);
+        setDeleting(false);
+        return;
+      }
+
+      router.push("/licenses");
+      router.refresh();
+    } catch (err) {
+      setError("Failed to delete license due to connection error.");
+      setDeleting(false);
+    }
+  }
+
   return (
     <section className="space-y-6">
       <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-accent/5 p-6 shadow-2xl">
@@ -218,6 +252,15 @@ export function LicenseDetailContent({
             >
               {revoking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldAlert className="h-3.5 w-3.5" />}
               <span>{revoking ? "Revoking..." : "Revoke"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={deleteLicense}
+              disabled={deleting}
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-red-600 bg-red-600/10 px-4 py-2.5 text-xs font-semibold text-red-400 transition hover:bg-red-600/20 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+            >
+              {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+              <span>{deleting ? "Deleting..." : "Delete"}</span>
             </button>
           </div>
         </div>

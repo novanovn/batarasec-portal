@@ -18,6 +18,7 @@ import {
   History,
   Send,
   Trash2,
+  X,
 } from "lucide-react";
 
 type Customer = {
@@ -109,6 +110,7 @@ export function LicenseDetailContent({
   const [revoking, setRevoking] = useState(false);
   const [resending, setResending] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function copyKey() {
@@ -171,7 +173,6 @@ export function LicenseDetailContent({
   }
 
   async function deleteLicense() {
-    if (!confirm("Are you sure you want to permanently delete this license? This action cannot be undone.")) return;
     setDeleting(true);
     setError(null);
 
@@ -191,14 +192,17 @@ export function LicenseDetailContent({
         } catch (_) {}
         setError(msg);
         setDeleting(false);
+        setIsDeleteModalOpen(false);
         return;
       }
 
+      setIsDeleteModalOpen(false);
       router.push("/licenses");
       router.refresh();
     } catch (err) {
       setError("Failed to delete license due to connection error.");
       setDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   }
 
@@ -255,7 +259,7 @@ export function LicenseDetailContent({
             </button>
             <button
               type="button"
-              onClick={deleteLicense}
+              onClick={() => setIsDeleteModalOpen(true)}
               disabled={deleting}
               className="flex items-center justify-center gap-1.5 rounded-lg border border-red-600 bg-red-600/10 px-4 py-2.5 text-xs font-semibold text-red-400 transition hover:bg-red-600/20 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
@@ -399,6 +403,60 @@ export function LicenseDetailContent({
           )}
         </div>
       </div>
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md rounded-2xl border border-red-500/20 bg-card p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-border/40 pb-3">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5 text-red-500 animate-pulse" />
+                <h2 className="text-lg font-semibold text-white">
+                  Permanently Delete License?
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-zinc-400 hover:text-white transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-sm text-zinc-400">
+              <p>
+                You are about to permanently delete license <span className="font-mono text-red-300 font-bold">{license.id}</span>.
+              </p>
+              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3.5 text-xs text-red-300 leading-relaxed">
+                <p className="font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
+                  Warning / Peringatan:
+                </p>
+                Tindakan ini bersifat destruktif dan tidak dapat dibatalkan. Lisensi akan dihapus permanen dari database. Setiap instansi BataraSec self-hosted yang saat ini menggunakan key ini akan **gagal melakukan sinkronisasi** dan diturunkan ke versi Community secara otomatis.
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-border/40 pt-4">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={deleteLicense}
+                disabled={deleting}
+                className="flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-red-600/10 cursor-pointer"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                <span>{deleting ? "Deleting..." : "Yes, delete permanently"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

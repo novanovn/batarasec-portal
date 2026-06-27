@@ -59,7 +59,7 @@ export function LoginForm() {
             autoFocus
             required
             className="w-full rounded-lg border border-border bg-card px-4 py-3 pl-11 text-sm text-foreground outline-none transition placeholder:text-zinc-600 focus:border-accent focus:ring-4 focus:ring-accent/30"
-            placeholder="novan.hariman@batarasec.com"
+            placeholder="admin@batarasec.com"
           />
         </div>
       </div>

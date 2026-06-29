@@ -1,14 +1,15 @@
 # BataraSec Portal Worklog
 
 ## Active Work
-- Task group: UI polish and localization — translation sweep + premium collapsible sidebar integration complete and deployed
+- Task group: License generation modal UX fix complete and deployed
 - Branch: `main`
-- Last worked: 2026-06-25 — Translated all remaining portal UI components from Indonesian to English. Resolved the settings redirect loop bug. Upgraded the portal sidebar to a premium collapsible component with animations and hover tooltips. Deployed successfully.
+- Last worked: 2026-06-29 — Fixed the generate-license modal so its header/close button remain visible, content scrolls within the viewport, backdrop clicks and Escape dismiss it, and background scrolling is locked. Typecheck/build passed; commit `c8d814c` deployed successfully.
 - Current repo: `D:\Ngoprek\ngulik\batarasec-portal`
 - Related repos: main platform `D:\Ngoprek\ngulik\BataraSec` (branch `feat/next-features-p2-portal`); VM agent `D:\Ngoprek\ngulik\batarasec-agent`
 - Next: monitor portal production logs and verify the interface.
 
 ## Current State
+- 2026-06-29: Fixed the `/licenses` generate-license modal viewport trap reported in production. Root causes were an unreachable backdrop click condition, no Escape listener, and an unbounded centered panel. Added internal scrolling, viewport max height, sticky actions, body scroll lock, functional backdrop dismissal, and dialog accessibility attributes. Production health passed after deploying commit `c8d814c`.
 - 2026-05-26: Created initial portal documentation baseline: `CLAUDE.md`, `TODO.md`, `design.md`, and `WORKLOG.md`.
 - 2026-05-26: Reformatted `TODO.md` to match the main BataraSec platform style: metadata block, Legend, estimate-based sections, task fields (`Main task`, `Subtask`, `Owner`, `Status`, `Priority`, `Est`, `Scope`, `Done when`), and `Done Archive`.
 - 2026-05-26: Portal is planned as a separate internal service, not part of the main BataraSec platform monorepo.

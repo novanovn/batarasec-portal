@@ -202,6 +202,26 @@ export function LicensesContent() {
     setFormError(null);
   }
 
+  useEffect(() => {
+    if (!showModal) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && !saving) {
+        closeModal();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showModal, saving]);
+
   async function generateLicense(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
@@ -500,26 +520,30 @@ export function LicensesContent() {
       {/* Generate License Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center"
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="generate-license-title"
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div className="pointer-events-none fixed inset-0 bg-black/70 backdrop-blur-sm" />
 
           {/* Modal panel */}
-          <div className="relative z-10 w-full max-w-lg rounded-2xl border border-border bg-card shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="relative z-10 flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
             {/* Modal header */}
-            <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
+            <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-6 py-4">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
                   <PlusCircle className="h-4 w-4" />
                 </div>
-                <h2 className="text-base font-semibold text-white">Generate license</h2>
+                <h2 id="generate-license-title" className="text-base font-semibold text-white">Generate license</h2>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
                 disabled={saving}
+                aria-label="Close generate license dialog"
                 className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-background/60 hover:text-white disabled:opacity-40 cursor-pointer"
               >
                 <X className="h-4 w-4" />
@@ -527,7 +551,7 @@ export function LicensesContent() {
             </div>
 
             {/* Modal body */}
-            <form onSubmit={generateLicense} className="px-6 py-5 space-y-4">
+            <form onSubmit={generateLicense} className="min-h-0 space-y-4 overflow-y-auto px-6 py-5 overscroll-contain">
               {/* Customer select */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-1.5 font-semibold">Active Customer</label>
@@ -654,7 +678,7 @@ export function LicensesContent() {
               )}
 
               {/* Modal footer actions */}
-              <div className="flex items-center justify-end gap-3 pt-1 border-t border-border/40">
+              <div className="sticky bottom-0 -mx-6 flex items-center justify-end gap-3 border-t border-border/60 bg-card/95 px-6 pb-1 pt-4 backdrop-blur">
                 {!generatedKey && (
                   <button
                     type="button"
